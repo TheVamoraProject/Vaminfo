@@ -8,14 +8,7 @@ LC_ALL=C
 LANG=C
 
 # vamora logo ASCII art
-logo_file="/usr/share/VamoraBrand/ASCII/Logo"
-
-if [ -s "$logo_file" ]; then
-    # If the logo file exists and is not empty, read it into the ascii_art array (preserve exact lines)
-    mapfile -t ascii_art < "$logo_file"
-else
-    # Fallback: embedded classic ASCII art (from original script)
-    ascii_art=(
+ascii_art=(
 "\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
 "\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
 "\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
@@ -36,9 +29,7 @@ else
 "\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
 "\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
 "\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
-    )
-fi
-
+)
 
 user=$(whoami)
 host=$(hostname)
@@ -100,6 +91,7 @@ else
   network_status="Not connected"
 fi
 
+ip=$(curl -s ifconfig.me 2>/dev/null)
 # Terminal detection (ts dosnt work well)
 get_terminal() {
     pid=$$
@@ -176,7 +168,7 @@ if [ ${#gpu} -gt $max_len ]; then
   gpu="${gpu:0:$max_len}..."
 fi
 
-# Remove what yu dont need here
+# Remove what yu dont need here by adding # in the beigening
 info_lines=(
 "\e[95m$user@$host\e[0m"
 "\e[96m---------------------------\e[0m"
@@ -189,6 +181,7 @@ info_lines=(
 "\e[93m\e[1mVamoraApps support:\e[0m $vapps_support"
 "\e[96m---------------------------\e[0m"
 "\e[93m\e[1mNetwork:\e[0m $network_status"
+# "\e[93m\e[1mPublic IP :\e[0m $ip"
 "\e[93m\e[1mCPU:\e[0m $cpu_model"
 "\e[93m\e[1mGPU:\e[0m $gpu"
 "\e[93m\e[1mRAM:\e[0m $ram_total"
