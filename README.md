@@ -5,7 +5,7 @@
 ---
 
 ## 🧐 What is Vaminfo
-
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/30140ed0-aa6e-488c-bcdb-191ec674675c" />
 `vaminfo` is a lightweight bash script that displays beautiful system info for VamoraOS, made especially for showing off the Vamora brand, environment, and style.
 
 ---
