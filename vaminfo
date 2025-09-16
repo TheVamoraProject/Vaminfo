@@ -4,6 +4,21 @@
 # vaminfo/vamifetch - VamoraOS (or any cool distro) system fetch
 # --------------------------------------------------------------
 
+# handle da flags before doing cool stuff
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    echo "Vaminfo - A simple system fetch tool made just for VamoraOS 💙"
+    echo
+    echo "Usage: vaminfo [options]"
+    echo
+    echo "Options:"
+    echo "  --help, -h      Show this help message"
+    echo "  --version, -v   Show version info"
+    exit 0
+elif [[ "$1" == "--version" || "$1" == "-v" ]]; then
+    echo "Vaminfo version: 1.0"
+    exit 0
+fi
+
 LC_ALL=C
 LANG=C
 
