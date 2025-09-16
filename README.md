@@ -30,8 +30,8 @@
 ---
 
 ## ⚡ Usage & Flags
-`-h, --help`	  Show help / usage information
-`-v, --version`	  Show version
+- `-h, --help`	  Show help / usage information
+- `-v, --version`	  Show version
 
 ## 🛠 Installation
 
