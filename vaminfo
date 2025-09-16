@@ -8,7 +8,14 @@ LC_ALL=C
 LANG=C
 
 # vamora logo ASCII art
-ascii_art=(
+logo_file="/usr/share/VamoraBrand/ASCII/Logo"
+
+if [ -s "$logo_file" ]; then
+    # If the logo file exists and is not empty, read it into the ascii_art array (preserve exact lines)
+    mapfile -t ascii_art < "$logo_file"
+else
+    # Fallback: embedded classic ASCII art (from original script)
+    ascii_art=(
 "\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
 "\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
 "\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
@@ -29,7 +36,9 @@ ascii_art=(
 "\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
 "\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
 "\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
-)
+    )
+fi
+
 
 user=$(whoami)
 host=$(hostname)
@@ -68,13 +77,16 @@ resolution=$(xrandr --current 2>/dev/null | grep '*' | awk '{print $1}' | head -
 resolution=${resolution:-N/A}
 
 # VamoraApps (vapps) support check
-if [ -d /VamoraSys/vapps ]; then
+if [ -d /opt/VamoraApps/ ]; then
   vapps_support="Fully supported"
-elif [ -d ~/.vapps ]; then
+elif [ -d /VamoraSys/vapps ]; then
+  vapps_support="Supported (Please update your Vapp installer)"
+elif [ -d "$HOME/.vapps" ]; then
   vapps_support="Supported for some users"
 else
   vapps_support="Not supported"
 fi
+
 
 # Network status
 if ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1; then
