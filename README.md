@@ -29,6 +29,11 @@
 
 ---
 
+## ⚡ Usage & Flags
+
+" -h, --help "	  Show help / usage information
+" -v, --version "	  Show version
+
 ## 🛠 Installation
 
 Here’s how you get it up and running:
