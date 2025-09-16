@@ -36,13 +36,13 @@
 ## 🛠 Installation
 
 Here’s how you get it up and running:
-On other distro :
+- On other distro :
 ```bash
 git clone https://github.com/TheVamoraProject/Vaminfo.git
 cd Vaminfo
 chmod +x vaminfo
 sudo mv vaminfo /usr/bin/
 ```
-on VamoraOS :
+- on VamoraOS :
 Vaminfo comes pre-installed 
 You can enable “Run on start” directly from your terminal settings.
