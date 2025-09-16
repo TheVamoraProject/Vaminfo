@@ -32,7 +32,7 @@ On other distro :
 git clone https://github.com/TheVamoraProject/Vaminfo.git
 cd Vaminfo
 chmod +x vaminfo
-sudo mv vaminfo /usr/local/bin/
+sudo mv vaminfo /usr/bin/
 ```
 on VamoraOS :
 Vaminfo comes pre-installed 
