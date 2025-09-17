@@ -34,6 +34,35 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Options:"
     echo "  --help, -h      Show this help message"
     echo "  --version, -v   Show version info"
+    echo "  --update, -u    Update vaminfo to latest version"
+    exit 0
+elif [[ "$1" == "--update" || "$1" == "-u" ]]; then
+    echo "🔎 Checking for updates from GitHub..."
+
+    LOCAL_VER=$(get_version "$LOCAL_INFO")
+    REMOTE_VER=$(curl -s "$REMOTE_INFO" | grep "VAMINFO_VERSION=" | cut -d'"' -f2)
+
+    if [[ -z "$REMOTE_VER" ]]; then
+        echo "❌ Failed to check latest version."
+        exit 1
+    fi
+
+    if (( REMOTE_VER > LOCAL_VER )); then
+        echo "⬇️  New version available: $REMOTE_VER"
+        echo "Updating vaminfo..."
+        git clone https://github.com/TheVamoraProject/Vaminfo.git /tmp/Vaminfo
+        cd /tmp/Vaminfo || exit 1
+        chmod +x vaminfo
+        sudo mv vaminfo "$INSTALL_PATH"
+        sudo cp VaminfoInfo.vmf "$LOCAL_INFO"
+        echo "✅ Updated to version $REMOTE_VER!"
+        rm -rf /tmp/Vaminfo
+    elif (( REMOTE_VER < LOCAL_VER )); then
+        echo "💙 Ooooh beta tester detected!"
+        echo "You are running version $LOCAL_VER while GitHub has $REMOTE_VER."
+    else
+        echo "✅ You are already on the latest version ($LOCAL_VER)."
+    fi
     exit 0
 elif [[ "$1" == "--version" || "$1" == "-v" ]]; then
     echo "Vaminfo version: 1.0"
