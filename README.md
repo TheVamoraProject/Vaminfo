@@ -44,6 +44,7 @@ A simple system fetch tool made just for <b>VamoraOS</b> 💙
 - `-h, --help`	  Show help / usage information
 - `-v, --version`   Show version
 - `-u, --update`   Update if update available
+- `-m, --mini`   Show smaller version with no colors
 
 ## 🛠 Installation
 
