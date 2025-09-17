@@ -23,7 +23,10 @@ fi
 
 # Source the release file (for vamora stuffz)
 . /etc/VamoraSys/vamora-release
-
+# Function: extract version from a file
+get_version() {
+    grep "VAMINFO_VERSION=" "$1" | cut -d'"' -f2
+}
 
 # handle da flags before doing cool stuff
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
