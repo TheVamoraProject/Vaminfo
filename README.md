@@ -1,5 +1,7 @@
 <p align="center">
-<img width="2550" height="600" alt="Group 22" src="https://github.com/user-attachments/assets/878fb5a9-8055-4613-bbe1-ada5730eff48" />
+  <img src="https://github.com/user-attachments/assets/878fb5a9-8055-4613-bbe1-ada5730eff48" alt="Vaminfo Logo" width="80%">
+</p>
+
 
 
 ---
