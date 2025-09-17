@@ -42,6 +42,9 @@ git clone https://github.com/TheVamoraProject/Vaminfo.git
 cd Vaminfo
 chmod +x vaminfo
 sudo mv vaminfo /usr/bin/
+sudo mkdir -p /etc/VamoraSys
+sudo mv VaminfoInfo.vmf /etc/VamoraSys/
+
 ```
 - on VamoraOS :
 Vaminfo comes pre-installed 
