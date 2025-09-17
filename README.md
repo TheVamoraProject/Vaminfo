@@ -31,7 +31,8 @@
 
 ## ⚡ Usage & Flags
 - `-h, --help`	  Show help / usage information
-- `-v, --version`	  Show version
+- `-v, --version`   Show version
+- `-u, --update`   Update if update available
 
 ## 🛠 Installation
 
