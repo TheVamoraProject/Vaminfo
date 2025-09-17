@@ -1,9 +1,20 @@
 #!/bin/bash
+#
+# --------------------------------------------------------------
+# Vaminfo: A simple system fetch tool made just for VamoraOS 💙
+# https://github.com/TheVamoraProject/Vaminfo
+# --------------------------------------------------------------
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2025 The Vamora Project
+#
 
-# --------------------------------------------------------------
-# vaminfo/vamifetch - VamoraOS (or any cool distro) system fetch
-# --------------------------------------------------------------
-# Get OS name
+
+
+
+
+# Script to get OS/Distro name
 if [ -f /etc/os-release ]; then
   distro=$(grep "^PRETTY_NAME=" /etc/os-release | cut -d= -f2 | tr -d '"')
 else
