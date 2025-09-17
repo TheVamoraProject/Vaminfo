@@ -1,7 +1,8 @@
 # Vaminfo
 <p align="center">
 > A simple system fetch tool made just for **VamoraOS** 💙
-> <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a> 
+---
+  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a> 
 
 ---
 
