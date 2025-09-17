@@ -3,6 +3,17 @@
 # --------------------------------------------------------------
 # vaminfo/vamifetch - VamoraOS (or any cool distro) system fetch
 # --------------------------------------------------------------
+# Get OS name
+if [ -f /etc/os-release ]; then
+  distro=$(grep "^PRETTY_NAME=" /etc/os-release | cut -d= -f2 | tr -d '"')
+else
+  distro="Unknown OS"
+fi
+#!/bin/bash
+
+# Source the release file (for vamora stuffz)
+. /etc/VamoraSys/vamora-release
+
 
 # handle da flags before doing cool stuff
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
@@ -16,6 +27,7 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     exit 0
 elif [[ "$1" == "--version" || "$1" == "-v" ]]; then
     echo "Vaminfo version: 1.0"
+    echo "VamoraOS info : $AL_NAME $VERSION ($VERSION_CODENAME)"
     exit 0
 fi
 
@@ -56,12 +68,6 @@ uptime=$(uptime -p 2>/dev/null | sed 's/up //')
 shell=${SHELL:-Unknown}
 wm=${XDG_CURRENT_DESKTOP:-None}
 
-# Get OS name
-if [ -f /etc/os-release ]; then
-  distro=$(grep "^PRETTY_NAME=" /etc/os-release | cut -d= -f2 | tr -d '"')
-else
-  distro="Unknown OS"
-fi
 
 # Hardware stuffz
 cpu_model=$(lscpu 2>/dev/null | grep "Model name" | awk -F: '{print $2}' | xargs)
@@ -195,7 +201,7 @@ info_lines=(
 "\e[93m\e[1mUptime:\e[0m $uptime"
 "\e[93m\e[1mShell:\e[0m $shell"
 "\e[93m\e[1mWM/Desktop:\e[0m $wm"
-"\e[93m\e[1mVamora version:\e[0m Alpha 1"
+"\e[93m\e[1mVamoraSys version:\e[0m $VERSION"
 "\e[93m\e[1mVamoraApps support:\e[0m $vapps_support"
 "\e[96m---------------------------\e[0m"
 "\e[93m\e[1mNetwork:\e[0m $network_status"
