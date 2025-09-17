@@ -20,7 +20,6 @@ if [ -f /etc/os-release ]; then
 else
   distro="Unknown OS"
 fi
-#!/bin/bash
 
 # Source the release file (for vamora stuffz)
 . /etc/VamoraSys/vamora-release
