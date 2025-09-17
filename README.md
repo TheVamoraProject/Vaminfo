@@ -1,4 +1,10 @@
-# Vaminfo
+<p align="center">
+<img width="2550" height="600" alt="Group 22" src="https://github.com/user-attachments/assets/878fb5a9-8055-4613-bbe1-ada5730eff48" />
+
+
+---
+
+
 <p align="center">
 > A simple system fetch tool made just for **VamoraOS** 💙
 <p align="center">
