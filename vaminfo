@@ -9,11 +9,11 @@
 #
 # Copyright (c) 2025 The Vamora Project
 #
-
-
-
-
-
+#
+#
+#
+#
+#
 # Script to get OS/Distro name
 if [ -f /etc/os-release ]; then
   distro=$(grep "^PRETTY_NAME=" /etc/os-release | cut -d= -f2 | tr -d '"')
