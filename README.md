@@ -1,13 +1,11 @@
 # Vaminfo
 <p align="center">
 > A simple system fetch tool made just for **VamoraOS** 💙
-
-
-  -<a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+<p align="center">
+<a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 <a href="https://github.com/TheVamoraProject/Vaminfo/releases"><img src="https://img.shields.io/github/v/release/TheVamoraProject/Vaminfo?color=green&label=latest"></a>
 <a href="https://github.com/TheVamoraProject/Vaminfo/issues"><img src="https://img.shields.io/github/issues/TheVamoraProject/Vaminfo"></a>
-<a href="https://github.com/TheVamoraProject/Vaminfo/stargazers"><img src="https://img.shields.io/github/stars/TheVamoraProject/Vaminfo?style=social"></a>
-- 
+<a href="https://github.com/TheVamoraProject/Vaminfo/stargazers"><img src="https://img.shields.io/github/stars/TheVamoraProject/Vaminfo?style=social"></a> 
 
 ---
 
