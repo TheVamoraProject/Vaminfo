@@ -72,7 +72,8 @@ fi
 
 # ===================================================================
 
-# ========== Network Status ==========
+# ========== Network Status =========================================
+
 if ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1; then
   interface=$(ip link show | awk '/state UP/ {print $2}' | sed 's/://' | head -n1)
   if [ -n "$interface" ]; then
@@ -86,7 +87,10 @@ fi
 
 ip=$(curl -s ifconfig.me 2>/dev/null)
 
-# ========== Terminal Detection (ts dosnt work weith all terminals) ==========
+# ===================================================================
+
+# ===== Terminal Detection (ts dosnt work weith all terminals) ======
+
 get_terminal() {
     pid=$$
     while [ $pid -ne 0 ]; do
@@ -111,14 +115,20 @@ get_terminal() {
 }
 terminal=$(get_terminal)
 
-# ========== Shorten CPU & GPU names ==========
+# ===================================================================
+
+# ========== Shorten CPU & GPU names ================================
+
 max_len=42
 [ ${#cpu_model} -gt $max_len ] && cpu_model="${cpu_model:0:$max_len}..."
 
 max_len=30
 [ ${#gpu} -gt $max_len ] && gpu="${gpu:0:$max_len}..."
 
-# ========== Vamora Release Info ==========
+# ===================================================================
+
+# ========== Vamora Release Info ====================================
+
 . /etc/VamoraSys/vamora-release
 LOCAL_INFO="/etc/VamoraSys/VaminfoInfo.vmf"
 REMOTE_INFO="https://raw.githubusercontent.com/TheVamoraProject/Vaminfo/main/VaminfoInfo.vmf"
@@ -129,7 +139,10 @@ get_version() {
     grep "VAMINFO_VERSION=" "$1" | cut -d'"' -f2
 }
 
-# ========== Handle Flags ==========
+# ===================================================================
+
+# ========== Handle Flags ===============================================
+
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Vaminfo - A simple system fetch tool made just for VamoraOS 💙"
     echo
@@ -194,11 +207,17 @@ elif [[ "$1" == "--version" || "$1" == "-v" ]]; then
     exit 0
 fi
 
-# ========== Locale fix ==========
+# ======================================================================
+
+# ========== Locale fix =============================================
+
 LC_ALL=C
 LANG=C
 
-# ========== Vamora Logo ASCII ==========
+# ===================================================================
+
+# ========== Vamora Logo ASCII ======================================
+
 ascii_art=(
 "\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
 "\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
@@ -223,7 +242,7 @@ ascii_art=(
 "\e[1;34m                                     \e[0m"
 "\e[1;34m                                     \e[0m"
 )
-# ========================================
+# ===================================================================
 
 
 
