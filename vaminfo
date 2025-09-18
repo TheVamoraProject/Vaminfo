@@ -8,15 +8,22 @@
 # The MIT License (MIT)
 #
 # Copyright (c) 2025 The Vamora Project
-#
-#
-# ========== System Info ==========
+
+
+
+
+
+# ========== System Info ============================================
+
 # Get OS name
+
 if [ -f /etc/os-release ]; then
   distro=$(grep "^PRETTY_NAME=" /etc/os-release | cut -d= -f2 | tr -d '"')
 else
   distro="Unknown OS"
 fi
+
+# Get user, Kernel, uptime, shell and window manager
 
 user=$(whoami)
 host=$(hostname)
@@ -25,7 +32,12 @@ uptime=$(uptime -p 2>/dev/null | sed 's/up //')
 shell=${SHELL:-Unknown}
 wm=${XDG_CURRENT_DESKTOP:-None}
 
-# ========== Hardware Stuffz ==========
+# ===================================================================
+
+# ========== Hardware Stuffz ========================================
+
+# Get Cpu, Gpu, Ram, Disk usage, Battery and resolution
+
 cpu_model=$(lscpu 2>/dev/null | grep "Model name" | awk -F: '{print $2}' | xargs)
 cpu_model=${cpu_model:-N/A}
 
@@ -44,7 +56,10 @@ battery=${battery:-N/A}
 resolution=$(xrandr --current 2>/dev/null | grep '*' | awk '{print $1}' | head -n1)
 resolution=${resolution:-N/A}
 
-# ========== VamoraApps (vapps) Check ==========
+# ===================================================================
+
+# ========== VamoraApps (vapps) Check ===============================
+
 if [ -d /opt/VamoraApps/ ]; then
   vapps_support="Fully supported"
 elif [ -d /VamoraSys/vapps ]; then
@@ -54,6 +69,8 @@ elif [ -d "$HOME/.vapps" ]; then
 else
   vapps_support="Not supported"
 fi
+
+# ===================================================================
 
 # ========== Network Status ==========
 if ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1; then
