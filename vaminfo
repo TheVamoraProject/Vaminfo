@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # --------------------------------------------------------------
-# Vaminfo (vamifetch) - A simple system fetch tool for VamoraOS 💙
+# Vaminfo (vamifetch) - A simple system fetch tool for VamoraOS
 # https://github.com/TheVamoraProject/Vaminfo
 # --------------------------------------------------------------
 #
@@ -26,11 +26,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
-#
-#
-#
-#
+
+
+LC_ALL=C
+LANG=C
+
+
 # ========== System Info ============================================
 
 # Get OS name
@@ -226,13 +227,6 @@ elif [[ "$1" == "--version" || "$1" == "-v" ]]; then
 fi
 
 # ======================================================================
-
-# ========== Locale fix =======================================
-
-LC_ALL=C
-LANG=C
-
-# =============================================================
 
 # ========== Vamora Logo ASCII =========================================
 
