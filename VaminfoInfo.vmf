@@ -1,1 +1,3 @@
+# this file is important for the update feature
 VAMINFO_VERSION="3"
+VAMORASYS_REQUIRED_VERSION="*"
