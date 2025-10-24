@@ -29,6 +29,7 @@ A simple system fetch tool made just for <b>VamoraOS</b> 💙
 ## 🎯 Features
 
 - Fancy ASCII art / logo of **Vamora** (or you can easly replace it with ur own one)  
+- Automatically adapts to your terminal size for a better experience on all devices.
 - Key system details:
   - OS / version
   - Kernel
