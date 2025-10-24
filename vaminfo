@@ -176,8 +176,8 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
 
 elif [[ "$1" == "-m" || "$1" == "--mini" ]]; then
     cat << "EOF"
-__     __                              
-\ \   / /_ _ _ __ ___   ___  _ __ __ _ 
+__     __
+\ \   / /_ _ _ __ ___   ___  _ __ __ _
  \ \ / / _` | '_ ` _ \ / _ \| '__/ _` |
   \ V / (_| | | | | | | (_) | | | (_| |
    \_/ \__,_|_| |_| |_|\___/|_|  \__,_|
@@ -251,8 +251,6 @@ ascii_art=(
 "\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
 "\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
 "\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
-"\e[1;34m                                     \e[0m"
-"\e[1;34m                                     \e[0m"
 )
 # ======================================================================
 
@@ -271,7 +269,7 @@ info_lines=(
 "\e[93m\e[1mVamoraApps support:\e[0m $vapps_support"
 "\e[96m---------------------------\e[0m"
 "\e[93m\e[1mNetwork:\e[0m $network_status"
-# "\e[93m\e[1mPublic IP :\e[0m $ip"
+"\e[93m\e[1mPublic IP :\e[0m $ip"
 "\e[93m\e[1mCPU:\e[0m $cpu_model"
 "\e[93m\e[1mGPU:\e[0m $gpu"
 "\e[93m\e[1mRAM:\e[0m $ram_total"
@@ -284,14 +282,30 @@ info_lines=(
 " \e[100m    \e[101m    \e[102m    \e[103m    \e[104m    \e[105m    \e[106m    \e[107m    \e[0m"
 # " \e[31m■■ \e[33m■■ \e[32m■■ \e[36m■■ \e[34m■■ \e[35m■■ \e[37m■■ \e[90m■■ \e[0m"
 )
-# ===================================================================
-
-
-
+# ======================================================================
 # ========== Side by side Print =============
-for i in "${!ascii_art[@]}"; do
-    left="${ascii_art[$i]}"
-    right="${info_lines[$i]}"
-    printf "%-40b %b\n" "$left" "$right"
-done
+term_width=$(tput cols)
+min_width=70  # adjust if needed
+
+ascii_len=${#ascii_art[@]}
+info_len=${#info_lines[@]}
+max_lines=$(( ascii_len > info_len ? ascii_len : info_len ))
+
+if (( term_width >= min_width )); then
+    # 🖥️ Wide terminal: print side-by-side
+    for (( i=0; i<max_lines; i++ )); do
+        left="${ascii_art[$i]}"
+        right="${info_lines[$i]}"
+        printf "%-40b %b\n" "${left:-}" "${right:-}"
+    done
+else
+    # 📱 Small terminal: ASCII first, then info below
+    for line in "${ascii_art[@]}"; do
+        printf "%b\n" "$line"
+    done
+    echo
+    for line in "${info_lines[@]}"; do
+        printf "%b\n" "$line"
+    done
+fi
 # ===========================================
