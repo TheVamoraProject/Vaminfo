@@ -149,7 +149,7 @@ max_len=30
 # ========== Vamora Release Info ====================================
 
 . /etc/VamoraSys/vamora-release
-LOCAL_INFO="/etc/VamoraSys/VaminfoInfo.vmf"
+LOCAL_INFO="/etc/VamoraSys/vaminfo/VaminfoInfo.vmf"
 REMOTE_INFO="https://raw.githubusercontent.com/TheVamoraProject/Vaminfo/main/VaminfoInfo.vmf"
 INSTALL_PATH="/usr/bin/vaminfo"
 
@@ -203,18 +203,11 @@ elif [[ "$1" == "--update" || "$1" == "-u" ]]; then
     fi
 
     if (( REMOTE_VER > LOCAL_VER )); then
-        echo "⬇️  New version available: $REMOTE_VER"
-        echo "Updating vaminfo..."
-        git clone https://github.com/TheVamoraProject/Vaminfo.git /tmp/Vaminfo
-        cd /tmp/Vaminfo || exit 1
-        chmod +x vaminfo
-        sudo mv vaminfo "$INSTALL_PATH"
-        sudo cp VaminfoInfo.vmf "$LOCAL_INFO"
-        echo "✅ Updated to version $REMOTE_VER!"
+    curl -fsSL https://vamora.vercel.app/install/vaminfo.sh | sudo bash
         rm -rf /tmp/Vaminfo
     elif (( REMOTE_VER < LOCAL_VER )); then
         echo "💙 Ooooh beta tester detected!"
-        echo "You are running version $LOCAL_VER while GitHub has $REMOTE_VER."
+        echo "You are running version $LOCAL_VER while The latest version is $REMOTE_VER."
     else
         echo "✅ You are already on the latest version ($LOCAL_VER)."
     fi
