@@ -58,8 +58,8 @@ cd Vaminfo
 chmod +x vaminfo
 sudo mv vaminfo /usr/bin/
 sudo mkdir -p /etc/VamoraSys
-sudo mv VaminfoInfo.vmf /etc/VamoraSys/vaminfo
-sudo mv VaminfoConfig.vmf /etc/VamoraSys/vaminfo
+sudo mv VaminfoInfo.vmf /etc/VamoraSys/vaminfo/
+sudo mv VaminfoConfig.vmf /etc/VamoraSys/vaminfo/
 
 ```
 - on VamoraOS :
