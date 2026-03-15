@@ -50,36 +50,27 @@ if [ -r "$CONFIG_FILE" ]; then
 fi
 COLOR="${COLOR:-LightBlue}"
 
-# Map color names to ANSI escape codes
 resolve_color() {
     case "$1" in
-        # Blues
+
         LightBlue)    echo "\e[1;94m" ;;   # Bold bright blue
         DeepBlue)     echo "\e[1;34m" ;;   # Bold dark blue
         Blue)         echo "\e[34m"   ;;
-        # Greens
         LightGreen)   echo "\e[1;92m" ;;
         Green)        echo "\e[1;32m" ;;
         DarkGreen)    echo "\e[32m"   ;;
-        # Reds
         LightRed)     echo "\e[1;91m" ;;
         Red)          echo "\e[1;31m" ;;
-        # Yellows
         Yellow)       echo "\e[1;93m" ;;
         Gold)         echo "\e[33m"   ;;
-        # Purples / Magentas
         LightPurple)  echo "\e[1;95m" ;;
         Purple)       echo "\e[1;35m" ;;
         Magenta)      echo "\e[35m"   ;;
-        # Cyans
         LightCyan)    echo "\e[1;96m" ;;
         Cyan)         echo "\e[1;36m" ;;
-        # Whites / Grays
         White)        echo "\e[1;97m" ;;
         Gray)         echo "\e[1;90m" ;;
-        # Pinks
         Pink)         echo "\e[1;95m" ;;
-        # Oranges (approximated)
         Orange)       echo "\e[38;5;214m" ;;
         *)
             echo "Unknown color: $1. Falling back to LightBlue." >&2
@@ -90,7 +81,6 @@ resolve_color() {
 
 ASCII_COLOR=$(resolve_color "$COLOR")
 
-# ===================================================================
 
 
 # ========== System Info ============================================
@@ -224,7 +214,7 @@ get_version() {
 # ========== Handle Flags ===============================================
 
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-    echo "Vaminfo - A simple system fetch tool made just for VamoraOS 💙"
+    echo "Vaminfo - A simple system fetch tool made just for VamoraOS "
     echo
     echo "Usage: vaminfo [options]"
     echo
@@ -254,20 +244,20 @@ elif [[ "$1" == "--colors" ]]; then
 
 elif [[ "$1" == "--color" || "$1" == "-c" ]]; then
     if [ -z "$2" ]; then
-        echo "❌ Please provide a color name. Run 'vaminfo --colors' to see all options."
+        echo "Please provide a color name. Run 'vaminfo --colors' to see all options."
         exit 1
     fi
     NEW_COLOR="$2"
     # Validate it resolves correctly
     TEST=$(resolve_color "$NEW_COLOR" 2>&1)
     if echo "$TEST" | grep -q "Unknown color"; then
-        echo "❌ Unknown color '$NEW_COLOR'. Run 'vaminfo --colors' to see all options."
+        echo "Unknown color '$NEW_COLOR'. Run 'vaminfo --colors' to see all options."
         exit 1
     fi
     if sudo mkdir -p "$CONFIG_DIR" 2>/dev/null && sudo bash -c "echo 'COLOR=\"$NEW_COLOR\"' > \"$CONFIG_FILE\"" && sudo chmod 644 "$CONFIG_FILE" 2>/dev/null; then
-        echo "✅ Color set to $NEW_COLOR and saved to $CONFIG_FILE"
+        echo "Color set to $NEW_COLOR and saved to $CONFIG_FILE"
     else
-        echo "❌ Could not write to $CONFIG_FILE (try running with sudo)"
+        echo "Could not write to $CONFIG_FILE (try running with sudo)"
         exit 1
     fi
     exit 0
@@ -291,12 +281,12 @@ EOF
     exit 0
 
 elif [[ "$1" == "--update" || "$1" == "-u" ]]; then
-    echo "🔎 Checking for updates from GitHub..."
+    echo "Checking for updates from GitHub..."
     LOCAL_VER=$(get_version "$LOCAL_INFO")
     REMOTE_VER=$(curl -s "$REMOTE_INFO" | grep "VAMINFO_VERSION=" | cut -d'"' -f2)
 
     if [[ -z "$REMOTE_VER" ]]; then
-        echo "❌ Failed to check latest version."
+        echo "Failed to check latest version."
         exit 1
     fi
 
@@ -307,7 +297,7 @@ elif [[ "$1" == "--update" || "$1" == "-u" ]]; then
         echo "💙 Ooooh beta tester detected!"
         echo "You are running version $LOCAL_VER while The latest version is $REMOTE_VER."
     else
-        echo "✅ You are already on the latest version ($LOCAL_VER)."
+        echo "You are already on the latest version ($LOCAL_VER)."
     fi
     exit 0
 
@@ -382,14 +372,14 @@ info_len=${#info_lines[@]}
 max_lines=$(( ascii_len > info_len ? ascii_len : info_len ))
 
 if (( term_width >= min_width )); then
-    # 🖥️ Wide terminal: print side-by-side
+
     for (( i=0; i<max_lines; i++ )); do
         left="${ascii_art[$i]}"
         right="${info_lines[$i]}"
         printf "%-40b %b\n" "${left:-}" "${right:-}"
     done
 else
-    # 📱 Small terminal: ASCII first, then info below
+
     for line in "${ascii_art[@]}"; do
         printf "%b\n" "$line"
     done
