@@ -46,7 +46,8 @@ A simple system fetch tool made just for <b>VamoraOS</b> 💙
 - `-v, --version`   Show version
 - `-u, --update`   Update if update available
 - `-m, --mini`   Show smaller version with no colors
-
+- `--color, -c`   Set the ASCII art color and save to config
+- `--colors`   List all available colors
 ## 🛠 Installation
 
 Here’s how you get it up and running:
