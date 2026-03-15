@@ -32,6 +32,67 @@ LC_ALL=C
 LANG=C
 
 
+# ========== Color Config ===========================================
+
+CONFIG_DIR="/etc/VamoraSys/vaminfo"
+CONFIG_FILE="$CONFIG_DIR/VaminfoConfig.vmf"
+
+# Create config with default if it doesn't exist
+if [ ! -f "$CONFIG_FILE" ]; then
+    if sudo mkdir -p "$CONFIG_DIR" 2>/dev/null && sudo bash -c "echo 'COLOR=\"LightBlue\"' > \"$CONFIG_FILE\"" 2>/dev/null; then
+        sudo chmod 644 "$CONFIG_FILE" 2>/dev/null
+    fi
+fi
+
+# Load config (silently fall back to default if unreadable)
+if [ -r "$CONFIG_FILE" ]; then
+    . "$CONFIG_FILE"
+fi
+COLOR="${COLOR:-LightBlue}"
+
+# Map color names to ANSI escape codes
+resolve_color() {
+    case "$1" in
+        # Blues
+        LightBlue)    echo "\e[1;94m" ;;   # Bold bright blue
+        DeepBlue)     echo "\e[1;34m" ;;   # Bold dark blue
+        Blue)         echo "\e[34m"   ;;
+        # Greens
+        LightGreen)   echo "\e[1;92m" ;;
+        Green)        echo "\e[1;32m" ;;
+        DarkGreen)    echo "\e[32m"   ;;
+        # Reds
+        LightRed)     echo "\e[1;91m" ;;
+        Red)          echo "\e[1;31m" ;;
+        # Yellows
+        Yellow)       echo "\e[1;93m" ;;
+        Gold)         echo "\e[33m"   ;;
+        # Purples / Magentas
+        LightPurple)  echo "\e[1;95m" ;;
+        Purple)       echo "\e[1;35m" ;;
+        Magenta)      echo "\e[35m"   ;;
+        # Cyans
+        LightCyan)    echo "\e[1;96m" ;;
+        Cyan)         echo "\e[1;36m" ;;
+        # Whites / Grays
+        White)        echo "\e[1;97m" ;;
+        Gray)         echo "\e[1;90m" ;;
+        # Pinks
+        Pink)         echo "\e[1;95m" ;;
+        # Oranges (approximated)
+        Orange)       echo "\e[38;5;214m" ;;
+        *)
+            echo "Unknown color: $1. Falling back to LightBlue." >&2
+            echo "\e[1;94m"
+            ;;
+    esac
+}
+
+ASCII_COLOR=$(resolve_color "$COLOR")
+
+# ===================================================================
+
+
 # ========== System Info ============================================
 
 # Get OS name
@@ -168,10 +229,47 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Usage: vaminfo [options]"
     echo
     echo "Options:"
-    echo "  --help, -h      Show this help message"
-    echo "  --version, -v   Show version info"
-    echo "  --update, -u    Update vaminfo to latest version"
-    echo "  --mini, -m    Show a smaller version of vaminfo"
+    echo "  --help,     -h           Show this help message"
+    echo "  --version,  -v           Show version info"
+    echo "  --update,   -u           Update vaminfo to latest version"
+    echo "  --mini,     -m           Show a smaller version of vaminfo"
+    echo "  --color,    -c <color>   Set the ASCII art color and save to config"
+    echo "  --colors                 List all available colors"
+    exit 0
+
+elif [[ "$1" == "--colors" ]]; then
+    echo "Available colors for vaminfo:"
+    echo
+    echo "  Blues:    LightBlue  DeepBlue  Blue"
+    echo "  Greens:   LightGreen Green     DarkGreen"
+    echo "  Reds:     LightRed   Red"
+    echo "  Yellows:  Yellow     Gold"
+    echo "  Purples:  LightPurple Purple   Magenta"
+    echo "  Cyans:    LightCyan  Cyan"
+    echo "  Others:   White      Gray      Pink     Orange"
+    echo
+    echo "Usage: vaminfo --color <ColorName>"
+    echo "Example: vaminfo --color LightCyan"
+    exit 0
+
+elif [[ "$1" == "--color" || "$1" == "-c" ]]; then
+    if [ -z "$2" ]; then
+        echo "❌ Please provide a color name. Run 'vaminfo --colors' to see all options."
+        exit 1
+    fi
+    NEW_COLOR="$2"
+    # Validate it resolves correctly
+    TEST=$(resolve_color "$NEW_COLOR" 2>&1)
+    if echo "$TEST" | grep -q "Unknown color"; then
+        echo "❌ Unknown color '$NEW_COLOR'. Run 'vaminfo --colors' to see all options."
+        exit 1
+    fi
+    if sudo mkdir -p "$CONFIG_DIR" 2>/dev/null && sudo bash -c "echo 'COLOR=\"$NEW_COLOR\"' > \"$CONFIG_FILE\"" && sudo chmod 644 "$CONFIG_FILE" 2>/dev/null; then
+        echo "✅ Color set to $NEW_COLOR and saved to $CONFIG_FILE"
+    else
+        echo "❌ Could not write to $CONFIG_FILE (try running with sudo)"
+        exit 1
+    fi
     exit 0
 
 elif [[ "$1" == "-m" || "$1" == "--mini" ]]; then
@@ -224,26 +322,26 @@ fi
 # ========== Vamora Logo ASCII =========================================
 
 ascii_art=(
-"\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
-"\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
-"\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
-"\e[1;34m%%%%%%%%....*%%%%%%....%%....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....%%%%%.....%.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....%%%%.....%......%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....%%%.....%.......%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....%%.....%........%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....%.....%.........%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....#....+..........%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%..........%....-.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.........%.....%.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%........%.....%%.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.......%.....%%%.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%......%.....%%%%.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%.....%.....%%%%%.....%%%%%%%%\e[0m"
-"\e[1;34m%%%%%%%%....+%....%%%%%%%....%%%%%%%%\e[0m"
-"\e[1;34m %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
-"\e[1;34m   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
-"\e[1;34m     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
+"${ASCII_COLOR}     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
+"${ASCII_COLOR}   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
+"${ASCII_COLOR} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
+"${ASCII_COLOR}%%%%%%%%....*%%%%%%....%%....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....%%%%%.....%.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....%%%%.....%......%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....%%%.....%.......%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....%%.....%........%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....%.....%.........%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....#....+..........%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%..........%....-.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.........%.....%.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%........%.....%%.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.......%.....%%%.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%......%.....%%%%.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%.....%.....%%%%%.....%%%%%%%%\e[0m"
+"${ASCII_COLOR}%%%%%%%%....+%....%%%%%%%....%%%%%%%%\e[0m"
+"${ASCII_COLOR} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \e[0m"
+"${ASCII_COLOR}   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   \e[0m"
+"${ASCII_COLOR}     %%%%%%%%%%%%%%%%%%%%%%%%%%%     \e[0m"
 )
 # ======================================================================
 
@@ -273,7 +371,6 @@ info_lines=(
 "\e[96m---------------------------\e[0m"
 " \e[40m    \e[41m    \e[42m    \e[43m    \e[44m    \e[45m    \e[46m    \e[47m    \e[0m"
 " \e[100m    \e[101m    \e[102m    \e[103m    \e[104m    \e[105m    \e[106m    \e[107m    \e[0m"
-# " \e[31m■■ \e[33m■■ \e[32m■■ \e[36m■■ \e[34m■■ \e[35m■■ \e[37m■■ \e[90m■■ \e[0m"
 )
 # ======================================================================
 # ========== Side by side Print =============
