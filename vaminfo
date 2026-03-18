@@ -35,7 +35,7 @@ LANG=C
 # ========== Color Config ===========================================
 
 CONFIG_DIR="/etc/VamoraSys/vaminfo"
-CONFIG_FILE="$CONFIG_DIR/VaminfoConfig.vmf"
+CONFIG_FILE="$CONFIG_DIR/settings.vmf"
 
 # Create config with default if it doesn't exist
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -131,11 +131,11 @@ resolution=${resolution:-N/A}
 # ========== VamoraApps (vapps) Check ===============================
 
 if [ -d /opt/VamoraApps/ ]; then
-  vapps_support="Fully supported"
+  vapps_support="Supported (global)"
 elif [ -d /VamoraSys/vapps ]; then
   vapps_support="Supported (Please update your Vapp installer)"
 elif [ -d "$HOME/.vapps" ]; then
-  vapps_support="Supported for some users"
+  vapps_support="Supported (multi user)"
 else
   vapps_support="Not supported"
 fi
