@@ -34,7 +34,7 @@ LANG=C
 
 # ========== Color Config ===========================================
 
-CONFIG_DIR="/etc/VamoraSys/deafault/vaminfo"
+CONFIG_DIR="/etc/VamoraSys/default/vaminfo"
 CONFIG_FILE="$CONFIG_DIR/settings.vmf"
 
 # Create config with default if it doesn't exist
@@ -200,7 +200,7 @@ max_len=30
 # ========== Vamora Release Info ====================================
 
 . /etc/VamoraSys/vamora-release
-LOCAL_INFO="/etc/VamoraSys/deafault/vaminfo/info.vmf"
+LOCAL_INFO="/etc/VamoraSys/default/vaminfo/info.vmf"
 REMOTE_INFO="https://raw.githubusercontent.com/TheVamoraProject/Vaminfo/main/info.vmf"
 INSTALL_PATH="/usr/bin/vaminfo"
 
