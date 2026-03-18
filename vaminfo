@@ -34,8 +34,8 @@ LANG=C
 
 # ========== Color Config ===========================================
 
-CONFIG_DIR="/etc/VamoraSys/default/vaminfo"
-CONFIG_FILE="$CONFIG_DIR/settings.vmf"
+CONFIG_DIR="~/.vaminfo"
+CONFIG_FILE="$CONFIG_DIR/config.vmf"
 
 # Create config with default if it doesn't exist
 if [ ! -f "$CONFIG_FILE" ]; then
