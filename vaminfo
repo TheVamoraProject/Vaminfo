@@ -200,7 +200,7 @@ max_len=30
 # ========== Vamora Release Info ====================================
 
 . /etc/VamoraSys/vamora-release
-LOCAL_INFO="/etc/VamoraSys/vaminfo/VaminfoInfo.vmf"
+LOCAL_INFO="/etc/VamoraSys/vaminfo/settings.vmf"
 REMOTE_INFO="https://raw.githubusercontent.com/TheVamoraProject/Vaminfo/main/VaminfoInfo.vmf"
 INSTALL_PATH="/usr/bin/vaminfo"
 
