@@ -57,10 +57,11 @@ git clone https://github.com/TheVamoraProject/Vaminfo.git
 cd Vaminfo
 chmod +x vaminfo
 sudo mv vaminfo /usr/bin/
+mkdir ~/.vaminfo
 sudo mkdir -p /etc/VamoraSys
 sudo mkdir -p /etc/VamoraSys/default
 sudo mv info.vmf /etc/VamoraSys/default/vaminfo/
-sudo mv settings.vmf /etc/VamoraSys/default/vaminfo/
+sudo mv config.vmf ~/.vaminfo
 
 ```
 - on VamoraOS :
