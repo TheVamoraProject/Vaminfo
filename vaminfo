@@ -34,8 +34,19 @@ LANG=C
 
 # ========== Color Config ===========================================
 
-CONFIG_DIR="~/.vaminfo"
-CONFIG_FILE="$CONFIG_DIR/config.vmf"
+CONFIG_DIR="$HOME/.vaminfo"
+CONFIG_FILE="$VAMINFO_DIR/config.vmf"
+ 
+if [ ! -d "$VAMINFO_DIR" ]; then
+    mkdir -p "$VAMINFO_DIR"
+    echo "Created $VAMINFO_DIR"
+fi
+ 
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo 'COLOR="LightBlue"' > "$CONFIG_FILE"
+    echo "Created $CONFIG_FILE"
+fi
+ 
 
 # Create config with default if it doesn't exist
 if [ ! -f "$CONFIG_FILE" ]; then
