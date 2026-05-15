@@ -1,0 +1,10 @@
+[package]
+name = "vaminfo-rs"
+version = "5.0.0"
+edition = "2021"
+description = "A simple system fetch tool for VamoraOS"
+license = "MIT"
+ 
+[[bin]]
+name = "vaminfo"
+path = "src/main.rs"
