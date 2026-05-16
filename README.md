@@ -17,6 +17,8 @@ A simple system fetch tool made just for <b>VamoraOS</b> 💙
 
 ## 🧐 What is Vaminfo
 <p align="center">
+  <img src="https://github.com/user-attachments/assets/0663bebb-ada4-49bc-864b-09aa0d41cedc" width="49%" />
+  <img src="https://github.com/user-attachments/assets/8fefdb85-cb43-4a7e-b884-ee97853f7ed5" width="49%" />
   <img src="https://github.com/user-attachments/assets/30140ed0-aa6e-488c-bcdb-191ec674675c" width="49%" />
   <img src="https://github.com/user-attachments/assets/1c407fa8-ef07-450e-96dc-ee90d22ddfc2" width="49%" />
 </p>
@@ -36,7 +38,7 @@ A simple system fetch tool made just for <b>VamoraOS</b> 💙
   - Desktop Environment
   - CPU & RAM usage
   - Uptime, etc.
-- Fast startup, minimal dependencies (just bash / coreutils)
+- Fast startup, minimal dependencies
 - Designed specifically for VamoraOS
 
 ---
@@ -48,22 +50,17 @@ A simple system fetch tool made just for <b>VamoraOS</b> 💙
 - `-m, --mini`   Show smaller version with no colors
 - `--color, -c`   Set the ASCII art color and save to config
 - `--colors`   List all available colors
+- `--ascii, -a`   Use a saved custom ASCII art
+- `--ascii-list`   List saved custom ASCII arts
+- `--ascii-add`   Add custom ASCII from stdin
+- `--ascii-delete`   Delete a saved custom ASCII
+- `--ascii-reset`   Reset to default Vamora logo
 ## 🛠 Installation
 
 Here’s how you get it up and running:
 - On other distro :
-```bash
-git clone https://github.com/TheVamoraProject/Vaminfo.git
-cd Vaminfo
-chmod +x vaminfo
-sudo mv vaminfo /usr/bin/
-mkdir ~/.vaminfo
-sudo mkdir -p /etc/VamoraSys
-sudo mkdir -p /etc/VamoraSys/default
-sudo mv info.vmf /etc/VamoraSys/default/vaminfo/
-sudo mv config.vmf ~/.vaminfo
+  You can download the binary from the releases and move it to /usr/bin/ or compile it from source using install.sh on the repo
 
-```
 - on VamoraOS :
 Vaminfo comes pre-installed 
 You can enable “Run on start” directly from your terminal settings.
