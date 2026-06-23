@@ -46,7 +46,6 @@ Complete rewrite in Rust — zero external dependencies, faster startup, safer c
 ## [v3.0] - 2024
 
 ### Added
-- VamoraApps (vapps) support detection
 - Network status and public IP display
 - `--mini` / `-m` compact mode
 - Color swatches row at the bottom
