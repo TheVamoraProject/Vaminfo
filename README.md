@@ -50,7 +50,7 @@ The installer will:
 1. Check / install the Rust toolchain
 2. Build a release binary
 3. Install to `/usr/local/bin/vaminfo`
-4. Create `~/VamoraSys/apps/vaminfo/` directory structure
+4. Create `~/.VamoraSys/apps/vaminfo/` directory structure
 5. Deploy bundled ASCII art
 6. Generate a default `config.vmf` if one doesn't exist
 
