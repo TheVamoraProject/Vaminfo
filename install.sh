@@ -138,6 +138,14 @@ banner() {
     center " ╚████╔╝ ██║  ██║██║ ╚═╝ ██║╚██████╔╝██║  ██║██║  ██║"
     center "  ╚═══╝  ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
     echo -e "${RESET}"
+    echo -e "${BOLD}${BLUE}"
+    center "███████╗██╗   ██╗███████╗"
+    center "██╔════╝╚██╗ ██╔╝██╔════╝"
+    center "███████╗ ╚████╔╝ ███████╗"
+    center "╚════██║  ╚██╔╝  ╚════██║"
+    center "███████║   ██║   ███████║"
+    center "╚══════╝   ╚═╝   ╚══════╝"
+    echo -e "${RESET}"
     echo ""
     hr "═" "$BOLD$CYAN"
     center "vaminfo  ·  installer" "${DIM}${LCYAN}"
@@ -297,6 +305,37 @@ done_screen() {
 }
 
 # ══════════════════════════════════════════════════════════════════
+#  ENVIRONMENT DETECTION
+# ══════════════════════════════════════════════════════════════════
+IS_TERMUX=false
+if [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d "/data/data/com.termux" ]]; then
+    IS_TERMUX=true
+fi
+
+# Pick the right bin dir and sudo wrapper
+pick_bin_dir() {
+    if $IS_TERMUX; then
+        # Termux exposes $PREFIX; fall back to the well-known path
+        echo "${PREFIX:-/data/data/com.termux/files/usr}/bin"
+    elif [[ -w "/usr/local/bin" ]]; then
+        echo "/usr/local/bin"
+    elif [[ -w "/bin" ]]; then
+        echo "/bin"
+    else
+        echo "/usr/local/bin"   # will use sudo below
+    fi
+}
+
+# On Termux sudo doesn't exist — this wrapper is a no-op there
+maybe_sudo() {
+    if $IS_TERMUX; then
+        "$@"
+    else
+        sudo "$@"
+    fi
+}
+
+# ══════════════════════════════════════════════════════════════════
 #  MAIN
 # ══════════════════════════════════════════════════════════════════
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -315,10 +354,15 @@ for cmd in cargo cp mkdir bc; do
     fi
 done
 
-BIN_DIR="/usr/local/bin"
-[[ -w "/bin" ]] && BIN_DIR="/bin"
+BIN_DIR="$(pick_bin_dir)"
 
-log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}"
+if $IS_TERMUX; then
+    log_info "Environment     →  ${BOLD}${LYELLOW}Termux (Android)${RESET}"
+    log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}  ${DIM}(Termux prefix)${RESET}"
+else
+    log_info "Environment     →  ${BOLD}Linux / macOS${RESET}"
+    log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}"
+fi
 
 if [[ ! -f "${SCRIPT_DIR}/Cargo.toml" ]]; then
     die "No Cargo.toml found in ${SCRIPT_DIR}"
@@ -362,9 +406,9 @@ if [[ -w "$BIN_DIR" ]]; then
     cp "$BINARY_PATH" "${BIN_DIR}/${BINARY_NAME}"
     chmod +x "${BIN_DIR}/${BINARY_NAME}"
 else
-    log_warn "Need sudo to write to ${BIN_DIR}"
-    sudo cp "$BINARY_PATH" "${BIN_DIR}/${BINARY_NAME}"
-    sudo chmod +x "${BIN_DIR}/${BINARY_NAME}"
+    log_warn "Need elevated privileges to write to ${BIN_DIR}"
+    maybe_sudo cp "$BINARY_PATH" "${BIN_DIR}/${BINARY_NAME}"
+    maybe_sudo chmod +x "${BIN_DIR}/${BINARY_NAME}"
 fi
 log_ok "Binary installed  →  ${BOLD}${BIN_DIR}/${BINARY_NAME}${RESET}"
 
