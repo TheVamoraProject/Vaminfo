@@ -138,18 +138,9 @@ banner() {
     center " ╚████╔╝ ██║  ██║██║ ╚═╝ ██║╚██████╔╝██║  ██║██║  ██║"
     center "  ╚═══╝  ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
     echo -e "${RESET}"
-    echo -e "${BOLD}${BLUE}"
-    center "███████╗██╗   ██╗███████╗"
-    center "██╔════╝╚██╗ ██╔╝██╔════╝"
-    center "███████╗ ╚████╔╝ ███████╗"
-    center "╚════██║  ╚██╔╝  ╚════██║"
-    center "███████║   ██║   ███████║"
-    center "╚══════╝   ╚═╝   ╚══════╝"
-    echo -e "${RESET}"
     echo ""
     hr "═" "$BOLD$CYAN"
     center "vaminfo  ·  installer" "${DIM}${LCYAN}"
-    center "VamoraSys  v1.0" "${DIM}${WHITE}"
     hr "═" "$BOLD$CYAN"
     echo ""
 }
@@ -169,6 +160,10 @@ detect_os() {
     elif [[ -f /etc/arch-release ]];    then id="arch"
     elif [[ -f /etc/fedora-release ]];  then id="fedora"
     elif command -v uname &>/dev/null;  then id="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    fi
+    # Override for Termux / Android — no /etc/os-release exists there
+    if [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d "/data/data/com.termux" ]]; then
+        id="android"; pretty="Android (Termux)"
     fi
     echo "${id}|${id_like}|${pretty}"
 }
@@ -207,6 +202,7 @@ distro_theme() {
         freebsd)                   echo "freebsd.vtxt red red red white" ;;
         netbsd)                    echo "netbsd.vtxt yellow yellow yellow white" ;;
         openbsd)                   echo "openbsd.vtxt yellow yellow yellow white" ;;
+        android)                   echo "android.vtxt green green green white" ;;
         *)
             if   [[ "$id_like" == *"debian"* || "$id_like" == *"ubuntu"* ]]; then
                 echo "debian.vtxt red red red white"
