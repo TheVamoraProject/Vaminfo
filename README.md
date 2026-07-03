@@ -40,7 +40,7 @@ vaminfo --help        # Show help
 u can install the binary and its files from releases or
 ### from website 
 ```sh
-curl -fsSL https://vamora.vercel.app/install/vaminfo.sh | sudo bash
+curl -fsSL https://vamora.vercel.app/install/vaminfo.sh | bash
 ```
 ### from repo file
 ```sh
