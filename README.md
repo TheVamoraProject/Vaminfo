@@ -1,3 +1,4 @@
+the code isnt synced with releases or README yet
 <p align="center">
   <img src="https://github.com/user-attachments/assets/878fb5a9-8055-4613-bbe1-ada5730eff48" alt="Vaminfo Logo" width="300">
 </p>
