@@ -1,6 +1,6 @@
 [package]
 name = "vaminfo"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 description = "Vamora OS system information tool"
 authors = ["Vamora OS"]
@@ -11,11 +11,12 @@ name = "vaminfo"
 path = "src/main.rs"
 
 [dependencies]
-sysinfo = "0.32"
+sysinfo  = "0.32"
 crossterm = "0.28"
-serde = { version = "1", features = ["derive"] }
-toml = "0.8"
-colored = "2"
+serde    = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml     = "0.8"
+colored  = "2"
 
 [profile.release]
 opt-level = 3
