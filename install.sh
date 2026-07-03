@@ -232,9 +232,13 @@ key_color = "${key_color}"
 value_color = "${value_color}"
 separator = "-"
 mini_mode = false
-mini_mode_ascii = false
 show_title = true
 show_separator = true
+
+[greetings]
+enabled = false
+birthday = ""
+events = []
 
 [modules]
 hostname = true
@@ -250,11 +254,23 @@ shell = true
 terminal = true
 desktop = true
 resolution = true
+display_server = true
 theme = true
+tty_type = true
+fs_type = true
+sys_age = true
 local_ip = true
+public_ip = false
+network = true
 bluetooth = true
 battery = true
-network = true
+android_version = true
+android_device = true
+sudo_status = true
+birthday_countdown = false
+vamora_os = true
+quotes = false
+jokes = false
 media = false
 color_blocks_big = true
 color_blocks_small = false
