@@ -1,37 +1,13 @@
-// --------------------------------------------------------------
-// Vaminfo (vamifetch) - A simple system fetch tool for VamoraOS
-// https://github.com/TheVamoraProject/Vaminfo
-// --------------------------------------------------------------
-//
-// MIT License
-//
-// Copyright (c) 2025 Vamora
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 mod ascii;
 mod config;
+mod greetings;
 mod layout;
 mod modules;
 mod renderer;
+mod tips;
 mod wizard;
 
+use colored::Colorize;
 use config::VaminfoConfig;
 use std::env;
 
@@ -44,58 +20,81 @@ fn main() {
         Some("config") | Some("--config") => {
             wizard::run_wizard(config);
         }
-        Some("mini") | Some("--mini") => {
+        Some("--mini") => {
             let mut cfg = config;
             cfg.mini_mode = true;
             renderer::render(&cfg);
         }
+        Some("--json") => {
+            renderer::render_json(&config);
+        }
+        Some("--tip") => {
+            print_tip(&config);
+        }
         Some("--debug") => {
-            println!("[DEBUG] Config path: {}", config::config_path().display());
-            println!("[DEBUG] Config: {:#?}", config);
+            let ac = renderer::parse_color(&config.ascii_color);
+            let tag = "[DEBUG]".color(ac).bold().to_string();
+            println!("{} Config path : {}", tag, config::config_path().display());
+            println!("{} Art dir     : {}", tag, config::art_dir().display());
+            println!("{} Config      :\n{:#?}", tag, config);
+            println!();
             renderer::render(&config);
         }
         Some("--help") | Some("-h") => {
             print_help(&config);
         }
         Some("--version") | Some("-v") => {
-            print_version(&config);
+            renderer::print_version_page(&config);
         }
         None => {
+            if greetings::is_birthday_today(&config) {
+                greetings::show_birthday_animation(&config);
+            } else {
+                let events = greetings::todays_events(&config);
+                for event in events {
+                    greetings::show_greeting(&config, event);
+                }
+            }
             renderer::render(&config);
         }
         Some(unknown) => {
-            eprintln!("Unknown command: '{}'. Run 'vaminfo -h' for usage.", unknown);
+            eprintln!("Unknown command: '{}'. Run 'vaminfo --help' for usage.", unknown);
             std::process::exit(1);
         }
     }
 }
 
 fn print_help(cfg: &VaminfoConfig) {
-    renderer::print_page_title(cfg, "vaminfo  --  help");
-    println!(
-        r#"USAGE:
-    vaminfo [COMMAND]
+    renderer::print_page_title(cfg, "vaminfo -- help");
+    let tc = renderer::parse_color(&cfg.title_color);
+    let ac = renderer::parse_color(&cfg.ascii_color);
 
-COMMANDS:
-    (none)        Display system information
-    config        Launch interactive configuration wizard
-    --mini        Show mini mode (OS, CPU, RAM, Uptime only)
-    --debug       Show debug info + system information
-    --version     Print version
-    --help        Show this help message
+    println!("{}", "USAGE:".color(tc).bold());
+    println!("    vaminfo [COMMAND]");
+    println!();
 
-CONFIG:
-    ~/.VamoraSys/apps/vaminfo/config.vmf
+    println!("{}", "COMMANDS:".color(tc).bold());
+    println!("    {}        Display system information", "(none)".color(ac));
+    println!("    {}       Launch interactive configuration wizard", "config".color(ac));
+    println!("    {}        Show mini mode (OS, Host, RAM, Uptime)", "--mini".color(ac));
+    println!("    {}        Export all hardware stats as JSON", "--json".color(ac));
+    println!("    {}         Display a random Linux tip", "--tip".color(ac));
+    println!("    {}       Show debug info + system information", "--debug".color(ac));
+    println!("    {}     Print version information", "--version".color(ac));
+    println!("    {}        Show this help message", "--help".color(ac));
+    println!();
 
-ART:
-    ~/.VamoraSys/apps/vaminfo/art/*.vtxt
-"#
-    );
+    println!("{}", "CONFIG:".color(tc).bold());
+    println!("    {}", config::config_path().display());
+    println!();
+
+    println!("{}", "ART:".color(tc).bold());
+    println!("    {}/*.vtxt", config::art_dir().display());
+    println!();
 }
 
-fn print_version(cfg: &VaminfoConfig) {
-    renderer::print_page_title(cfg, "vaminfo  --  version");
-    println!("  vaminfo  v{}", env!("CARGO_PKG_VERSION"));
-    println!("  Vamora OS system information tool");
+fn print_tip(cfg: &VaminfoConfig) {
+    renderer::print_page_title(cfg, "Linux Tip");
+    println!("  {}", tips::random_tip());
     println!();
 }
