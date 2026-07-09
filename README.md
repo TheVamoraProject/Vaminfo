@@ -1,4 +1,3 @@
-the code isnt synced with releases or README yet
 <p align="center">
   <img src="https://github.com/user-attachments/assets/878fb5a9-8055-4613-bbe1-ada5730eff48" alt="Vaminfo Logo" width="300">
 </p>
@@ -13,16 +12,17 @@ A simple customizable system fetch tool made just for <b>VamoraOS</b> 💙
   <a href="https://github.com/TheVamoraProject/Vaminfo/stargazers"><img src="https://img.shields.io/github/stars/TheVamoraProject/Vaminfo?style=social"></a> 
 </p>
 
-
 ---
 ## Features
 
 - ⚡ Instant startup
-- 🧠 Auto-layout: split (desktop) or stacked (mobile) based depending on terminal width
+- 🧠 Auto-layout: split (desktop) or stacked (mobile) depending on terminal width
 - 🎨 Fully colorized, customizable output
 - 🧩 Modular trait-based architecture — each info module is independent and easy to add
 - 🎭 ASCII art system with custom files + built-in Vamora logo
 - 📱 Mini mode for quick essential info
+- 🧾 JSON export for scripting/integration
+- 💡 Random Linux tips
 - 🧙 Interactive config wizard — no manual file editing needed
 
 ## Usage
@@ -30,14 +30,16 @@ A simple customizable system fetch tool made just for <b>VamoraOS</b> 💙
 ```sh
 vaminfo               # Display system information
 vaminfo config        # Launch interactive configuration wizard
-vaminfo --mini        # Minimal view: OS, CPU, RAM, Uptime
-vaminfo --debug       # Debug output + system info
-vaminfo --version     # Print version
-vaminfo --help        # Show help
+vaminfo --mini        # Mini mode: OS, Host, RAM, Uptime
+vaminfo --json        # Export all hardware stats as JSON
+vaminfo --tip         # Display a random Linux tip
+vaminfo --debug       # Debug output + system information
+vaminfo --version, -v # Print version information
+vaminfo --help, -h    # Show help message
 ```
 
 ## Installation / Update
-u can install the binary and its files from releases or
+You can install the binary and its files from releases or:
 ### from website 
 ```sh
 curl -fsSL https://vamora.vercel.app/install/vaminfo.sh | bash
@@ -62,7 +64,6 @@ cargo build --release
 ./target/release/vaminfo
 ```
 
-
 ## ASCII Art
 
 Select/add/remove them via `vaminfo config`.
@@ -70,9 +71,6 @@ Select/add/remove them via `vaminfo config`.
 If the selected file is missing or empty, vaminfo silently falls back to the built-in ASCII art.
 
 ```ascii-art
-
-
-
           ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒       
        ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒    
      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  
@@ -97,10 +95,8 @@ If the selected file is missing or empty, vaminfo silently falls back to the bui
      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  
        ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒    
          ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒       
-
-
-
 ```
+
 ## Layout Algorithm
 
 At runtime, vaminfo reads the terminal dimensions using `crossterm`:
@@ -128,7 +124,6 @@ No manual override — fully automatic and adaptive.
 | network  | Interface names with RX/TX totals      |
 
 All modules can be toggled via `vaminfo config` — no source code changes needed.
-
 
 <!-- made by vamora -->
 ---
