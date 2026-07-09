@@ -108,20 +108,49 @@ No manual override — fully automatic and adaptive.
 
 ## Modules
 
-| Module   | Description                            |
-|----------|----------------------------------------|
-| hostname | System hostname                        |
-| os       | OS name, version, architecture         |
-| kernel   | Kernel version                         |
-| cpu      | CPU model, cores, frequency, load %    |
-| gpu      | GPU model (Linux /sys/class/drm)       |
-| ram      | Used / Total memory with percentage    |
-| disk     | Disk usage for `/` and `/home`         |
-| uptime   | System uptime (days/hours/minutes)     |
-| shell    | Current shell from `$SHELL`            |
-| desktop  | DE/WM and display server (X11/Wayland) |
-| battery  | Battery % and charge status            |
-| network  | Interface names with RX/TX totals      |
+| Module          | Description                                          |
+|-----------------|-------------------------------------------------------|
+| **System Identity** |                                                     |
+| hostname        | System hostname                                       |
+| os              | OS name, version, architecture                         |
+| kernel          | Kernel version                                         |
+| bios            | BIOS information                                       |
+| **Hardware**    |                                                         |
+| cpu             | CPU model, cores, frequency, load %                    |
+| gpu             | GPU model (Linux /sys/class/drm)                       |
+| ram             | Used / Total memory with percentage                    |
+| disk            | Disk usage for `/` and `/home`                          |
+| battery         | Battery % and charge status                             |
+| bluetooth       | Bluetooth status                                        |
+| **Time**        |                                                         |
+| uptime          | System uptime (days/hours/minutes)                     |
+| system age      | Time since OS install                                   |
+| **Environment** |                                                         |
+| shell           | Current shell from `$SHELL`                             |
+| terminal        | Current terminal emulator                               |
+| tty type        | TTY type                                                |
+| desktop         | DE/WM and display server (X11/Wayland)                  |
+| display server  | Display server in use                                    |
+| resolution      | Screen resolution                                        |
+| theme           | Active system theme                                       |
+| filesystem type | Root filesystem type                                       |
+| sudo privileges | Whether the current user has sudo access                   |
+| **Network**     |                                                          |
+| local ip        | Local IP address                                         |
+| public ip       | Public IP address (makes a network request)               |
+| network I/O     | Interface names with RX/TX totals                         |
+| **Android**     | *(Android/Termux only)*                                  |
+| android version | Android OS version                                        |
+| android device  | Android device model                                       |
+| **VamoraOS**    |                                                          |
+| vamoraos info   | VamoraOS-specific info                                    |
+| **Fun / Optional** |                                                       |
+| birthday cntdwn | Countdown to birthday (requires birthday set in greetings)  |
+| quotes          | Random quote display                                       |
+| linux jokes     | Random Linux joke                                           |
+| **Color Blocks**|                                                          |
+| color blocks big| Large color block display                                  |
+| color blocks sml| Small color block display                                  |
 
 All modules can be toggled via `vaminfo config` — no source code changes needed.
 
