@@ -39,6 +39,9 @@ pub struct VaminfoConfig {
     pub greetings:      GreetingsConfig,
     #[serde(default)]
     pub modules:        ModuleConfig,
+    /// Saved display order — empty means use the built-in default order.
+    #[serde(default)]
+    pub module_order:   Vec<String>,
 }
 
 // ── Greetings / Events ────────────────────────────────────────────────────────
@@ -166,6 +169,7 @@ impl Default for VaminfoConfig {
             show_separator: true,
             greetings:     GreetingsConfig::default(),
             modules:       ModuleConfig::default(),
+            module_order:  vec![],
         }
     }
 }
