@@ -45,7 +45,11 @@ COLS=$(tput cols 2>/dev/null || echo 80)
 
 center() {
     local text="$1" color="${2:-}"
-    local len=${#text} pad=$(( (COLS - len) / 2 ))
+    # FIX: split into two locals — with set -u, a single
+    # "local len=X pad=$((COLS-len))" would try to expand $len
+    # before it is assigned, triggering "unbound variable".
+    local len=${#text}
+    local pad=$(( (COLS - len) / 2 ))
     printf "%${pad}s" ""
     echo -e "${color}${text}${RESET}"
 }
@@ -77,7 +81,13 @@ if [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d "/data/data/com.termux" ]]; then
 fi
 
 # Wraps sudo — no-op on Termux since sudo doesn't exist there
-maybe_sudo() { $IS_TERMUX && "$@" || sudo "$@"; }
+maybe_sudo() {
+    if $IS_TERMUX; then
+        "$@"
+    else
+        sudo "$@"
+    fi
+}
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  § OS DETECTION
@@ -85,6 +95,7 @@ maybe_sudo() { $IS_TERMUX && "$@" || sudo "$@"; }
 detect_os() {
     local id="" id_like="" pretty=""
     if [[ -f /etc/os-release ]]; then
+        # shellcheck source=/dev/null
         source /etc/os-release          # sets ID, ID_LIKE, PRETTY_NAME
         id="${ID:-}"; id_like="${ID_LIKE:-}"; pretty="${PRETTY_NAME:-}"
     elif [[ -f /etc/debian_version ]]; then id="debian"
@@ -142,6 +153,8 @@ distro_theme() {
         nixos)                  echo "nixos.vtxt blue blue blue white" ;;
         alpine)                 echo "alpine.vtxt blue blue blue white" ;;
         slackware)              echo "slackware.vtxt blue blue blue white" ;;
+        # ── VamoraOS ───────────────────────────────────────────────────────
+        vamora*)                echo "ascii1.vtxt bright_blue bright_blue bright_blue white" ;;
         # ── Android / Termux ───────────────────────────────────────────────
         android)                echo "android.vtxt green green green white" ;;
         # ── BSD / macOS ────────────────────────────────────────────────────
@@ -187,7 +200,7 @@ mini_mode = false
 show_title = true
 show_separator = true
 module_order = [
-    "color_blocks_big",
+    "os",
     "vamorasys_version",
     "vmf_version",
     "vamora_version_codename",
@@ -219,8 +232,8 @@ module_order = [
     "birthday_countdown",
     "quotes",
     "jokes",
+    "color_blocks_big",
     "color_blocks_small",
-    "os",
 ]
 
 [greetings]
@@ -229,40 +242,40 @@ birthday = ""
 events = []
 
 [modules]
-hostname              = true
-os                    = true
-kernel                = true
-bios                  = true
-cpu                   = true
-gpu                   = true
-ram                   = true
-disk                  = true
-uptime                = false
-shell                 = true
-terminal              = true
-desktop               = true
-resolution            = true
-display_server        = true
-theme                 = true
-tty_type              = true
-fs_type               = true
-sys_age               = true
-local_ip              = true
-public_ip             = false
-network               = true
-bluetooth             = true
-battery               = true
-android_version       = true
-android_device        = true
-sudo_status           = true
-birthday_countdown    = false
-vamorasys_version     = true
-vmf_version           = true
+hostname                = true
+os                      = true
+kernel                  = true
+bios                    = true
+cpu                     = true
+gpu                     = true
+ram                     = true
+disk                    = true
+uptime                  = true
+shell                   = true
+terminal                = true
+desktop                 = true
+resolution              = true
+display_server          = true
+theme                   = true
+tty_type                = true
+fs_type                 = true
+sys_age                 = true
+local_ip                = true
+public_ip               = false
+network                 = true
+bluetooth               = true
+battery                 = true
+android_version         = true
+android_device          = true
+sudo_status             = true
+birthday_countdown      = false
+vamorasys_version       = true
+vmf_version             = true
 vamora_version_codename = true
-quotes                = false
-jokes                 = false
-color_blocks_big      = true
-color_blocks_small    = false
+quotes                  = false
+jokes                   = false
+color_blocks_big        = true
+color_blocks_small      = false
 EOF
 }
 
