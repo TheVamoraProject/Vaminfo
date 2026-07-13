@@ -37,6 +37,12 @@ vaminfo --debug       # Debug output + system information
 vaminfo --version, -v # Print version information
 vaminfo --help, -h    # Show help message
 ```
+## Wizard Controls
+- Arrow keys (or `j`/`k`) to move the ▶ selector
+- `Enter` to select / confirm
+- `Space` to toggle a module ON/OFF (in Modules & Order)
+- `U`/`D` or `Shift+↑`/`Shift+↓` to reorder modules
+- `q` or `Esc` to exit without saving
 
 ## Installation / Update
 You can install the binary and its files from releases or:
@@ -70,32 +76,7 @@ Select/add/remove them via `vaminfo config`.
 
 If the selected file is missing or empty, vaminfo silently falls back to the built-in ASCII art.
 
-```ascii-art
-          ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒       
-       ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒    
-     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  
-    ▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒   ▒▒▒▒▒▒▒▒▒▒ 
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒▒▒▒▒▒▒     ▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒▒▒▒▒▒      ▒      ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒▒▒▒▒      ▒       ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒▒▒▒      ▒        ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒▒▒      ▒         ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒▒      ▒          ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒      ▒           ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒      ▒░           ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ░      ▒      ▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒           ▒      ▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒          ▒      ▒▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒         ▒      ▒▒▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒        ▒      ▒▒▒▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒       ▒      ▒▒▒▒▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒      ▒      ░▒▒▒▒▒▒     ▒▒▒▒▒▒▒▒▒▒
-   ▒▒▒▒▒▒▒▒▒▒     ▒▒      ▒▒▒▒▒▒▒     ▒▒▒▒▒▒▒▒▒▒
-    ▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒   ▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒▒▒ 
-     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  
-       ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒    
-         ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒       
-```
+
 
 ## Layout Algorithm
 
@@ -110,22 +91,22 @@ No manual override — fully automatic and adaptive.
 
 | Module          | Description                                          |
 |-----------------|-------------------------------------------------------|
-| **System Identity** |                                                     |
+|-----------------| **System Identity** |                                  
 | hostname        | System hostname                                       |
 | os              | OS name, version, architecture                         |
 | kernel          | Kernel version                                         |
 | bios            | BIOS information                                       |
-| **Hardware**    |                                                         |
+|-----------------|**Hardware**    |
 | cpu             | CPU model, cores, frequency, load %                    |
 | gpu             | GPU model (Linux /sys/class/drm)                       |
 | ram             | Used / Total memory with percentage                    |
 | disk            | Disk usage for `/` and `/home`                          |
 | battery         | Battery % and charge status                             |
 | bluetooth       | Bluetooth status                                        |
-| **Time**        |                                                         |
+|-----------------|**Time**        |
 | uptime          | System uptime (days/hours/minutes)                     |
 | system age      | Time since OS install                                   |
-| **Environment** |                                                         |
+|-----------------|**Environment** |
 | shell           | Current shell from `$SHELL`                             |
 | terminal        | Current terminal emulator                               |
 | tty type        | TTY type                                                |
@@ -135,20 +116,22 @@ No manual override — fully automatic and adaptive.
 | theme           | Active system theme                                       |
 | filesystem type | Root filesystem type                                       |
 | sudo privileges | Whether the current user has sudo access                   |
-| **Network**     |                                                          |
+|-----------------|**Network**     |
 | local ip        | Local IP address                                         |
 | public ip       | Public IP address (makes a network request)               |
 | network I/O     | Interface names with RX/TX totals                         |
-| **Android**     | *(Android/Termux only)*                                  |
+|-----------------|**Android**   *(Android/Termux only)*     |
 | android version | Android OS version                                        |
 | android device  | Android device model                                       |
-| **VamoraOS**    |                                                          |
+|-----------------|**VamoraOS**    |
 | vamoraos info   | VamoraOS-specific info                                    |
-| **Fun / Optional** |                                                       |
+|-----------------|**Fun / Optional**                                |
+| birthday cake | Displays an ASCII art when u run vaminfo the day of ur birthday   |
 | birthday cntdwn | Countdown to birthday (requires birthday set in greetings)  |
+| custom events   | User-defined date-triggered messages                        |
 | quotes          | Random quote display                                       |
 | linux jokes     | Random Linux joke                                           |
-| **Color Blocks**|                                                          |
+|-----------------|**Color Blocks**|
 | color blocks big| Large color block display                                  |
 | color blocks sml| Small color block display                                  |
 
