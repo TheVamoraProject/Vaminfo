@@ -1,230 +1,182 @@
 #!/usr/bin/env bash
 
-# ░▒▓ VamoraSys — vaminfo Installer ▓▒░
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║              VamoraSys — vaminfo Installer                              ║
+# ║                                                                          ║
+# ║  HOW TO MAINTAIN THIS FILE:                                              ║
+# ║  • Binary name     → change BINARY_NAME below (§ CONFIG)                ║
+# ║  • Install paths   → change VAMINFO_DIR / BIN_DIR (§ CONFIG)            ║
+# ║  • New distros     → add a case entry in distro_theme() (§ OS THEMES)   ║
+# ║  • Config shape    → edit generate_config() (§ CONFIG GENERATOR)        ║
+# ║  • Module defaults → edit the [modules] block inside generate_config()  ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
 
 set -euo pipefail
 
-# ══════════════════════════════════════════════════════════════════
-#  COLORS & STYLES
-# ══════════════════════════════════════════════════════════════════
-RESET='\033[0m'
-BOLD='\033[1m'
-DIM='\033[2m'
-ITALIC='\033[3m'
-BLINK='\033[5m'
+# ══════════════════════════════════════════════════════════════════════════════
+#  § INSTALLER CONFIG  — edit these to change paths / binary name
+# ══════════════════════════════════════════════════════════════════════════════
+BINARY_NAME="vaminfo"
+VAMINFO_DIR="$HOME/.VamoraSys/apps/vaminfo"
+ART_DIR="$VAMINFO_DIR/art"
+CONFIG_FILE="$VAMINFO_DIR/config.vmf"
 
-BLACK='\033[0;30m';   GRAY='\033[1;30m'
-RED='\033[0;31m';     LRED='\033[1;31m'
-GREEN='\033[0;32m';   LGREEN='\033[1;32m'
-YELLOW='\033[0;33m';  LYELLOW='\033[1;33m'
-BLUE='\033[0;34m';    LBLUE='\033[1;34m'
-MAGENTA='\033[0;35m'; LMAGENTA='\033[1;35m'
-CYAN='\033[0;36m';    LCYAN='\033[1;36m'
-WHITE='\033[0;37m';   LWHITE='\033[1;37m'
+# Termux sets $PREFIX to its own usr tree; on normal Linux this falls back to /usr/local
+INSTALL_PREFIX="${PREFIX:-/usr/local}"
+BIN_DIR="$INSTALL_PREFIX/bin"
 
-# Background
-BG_BLACK='\033[40m';  BG_BLUE='\033[44m'; BG_CYAN='\033[46m'
+# ══════════════════════════════════════════════════════════════════════════════
+#  § COLORS & STYLES
+# ══════════════════════════════════════════════════════════════════════════════
+RESET='\033[0m';    BOLD='\033[1m';    DIM='\033[2m'
+RED='\033[0;31m';   LRED='\033[1;31m'
+GREEN='\033[0;32m'; LGREEN='\033[1;32m'
+YELLOW='\033[0;33m';LYELLOW='\033[1;33m'
+BLUE='\033[0;34m';  LBLUE='\033[1;34m'
+CYAN='\033[0;36m';  LCYAN='\033[1;36m'
+WHITE='\033[0;37m'; LWHITE='\033[1;37m'
+GRAY='\033[1;30m';  LMAGENTA='\033[1;35m'
+BG_BLACK='\033[40m'; BG_BLUE='\033[44m'
 
-# ══════════════════════════════════════════════════════════════════
-#  TERMINAL WIDTH
-# ══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+#  § HELPERS
+# ══════════════════════════════════════════════════════════════════════════════
 COLS=$(tput cols 2>/dev/null || echo 80)
 
-# ══════════════════════════════════════════════════════════════════
-#  PRINT HELPERS
-# ══════════════════════════════════════════════════════════════════
-
-# Print a centered line (plain text, no color codes in $1)
 center() {
-    local text="$1"
-    local color="${2:-}"
-    local len=${#text}
-    local pad=$(( (COLS - len) / 2 ))
+    local text="$1" color="${2:-}"
+    local len=${#text} pad=$(( (COLS - len) / 2 ))
     printf "%${pad}s" ""
     echo -e "${color}${text}${RESET}"
 }
 
-# Horizontal rule
-hr() {
-    local char="${1:-─}"
-    local color="${2:-$DIM}"
-    local line=""
-    for ((i=0; i<COLS; i++)); do line+="$char"; done
-    echo -e "${color}${line}${RESET}"
-}
-
-# Thin divider
+hr()      { local c="${1:-─}" col="${2:-$DIM}"; printf "${col}"; printf "%${COLS}s" | tr ' ' "$c"; printf "${RESET}\n"; }
 divider() { hr "·" "$DIM$BLUE"; }
 
-# Log helpers
-log_info()    { echo -e "  ${LBLUE}${BOLD}  ◆${RESET}  ${WHITE}$*${RESET}"; }
-log_ok()      { echo -e "  ${LGREEN}${BOLD}  ✔${RESET}  ${LGREEN}$*${RESET}"; }
-log_warn()    { echo -e "  ${LYELLOW}${BOLD}  ⚠${RESET}  ${LYELLOW}$*${RESET}"; }
-log_error()   { echo -e "  ${LRED}${BOLD}  ✘${RESET}  ${LRED}$*${RESET}" >&2; }
-log_dim()     { echo -e "    ${DIM}${GRAY}$*${RESET}"; }
-die()         { log_error "$*"; echo ""; exit 1; }
+log_info()  { echo -e "  ${LBLUE}${BOLD}◆${RESET}  ${WHITE}$*${RESET}"; }
+log_ok()    { echo -e "  ${LGREEN}${BOLD}✔${RESET}  ${LGREEN}$*${RESET}"; }
+log_warn()  { echo -e "  ${LYELLOW}${BOLD}⚠${RESET}  ${LYELLOW}$*${RESET}"; }
+log_error() { echo -e "  ${LRED}${BOLD}✘${RESET}  ${LRED}$*${RESET}" >&2; }
+log_dim()   { echo -e "    ${DIM}${GRAY}$*${RESET}"; }
+die()       { log_error "$*"; echo ""; exit 1; }
 
-# Phase header  ── big styled section title
 phase() {
-    local title="$1"
     echo ""
     hr "━" "$BOLD$BLUE"
-    echo -e "  ${BG_BLUE}${LWHITE}${BOLD}  $title  ${RESET}"
+    echo -e "  ${BG_BLUE}${LWHITE}${BOLD}  $*  ${RESET}"
     hr "━" "$BOLD$BLUE"
     echo ""
 }
 
-# Animated spinner for long-running commands
-spinner_run() {
-    local label="$1"; shift
-    local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
-    local i=0
+# ══════════════════════════════════════════════════════════════════════════════
+#  § ENVIRONMENT DETECTION  — detects Termux vs normal Linux/macOS
+# ══════════════════════════════════════════════════════════════════════════════
+IS_TERMUX=false
+if [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d "/data/data/com.termux" ]]; then
+    IS_TERMUX=true
+fi
 
-    # Run command in background, capture output
-    local tmpout; tmpout=$(mktemp)
-    "$@" >"$tmpout" 2>&1 &
-    local pid=$!
+# Wraps sudo — no-op on Termux since sudo doesn't exist there
+maybe_sudo() { $IS_TERMUX && "$@" || sudo "$@"; }
 
-    while kill -0 "$pid" 2>/dev/null; do
-        printf "\r  ${LCYAN}${BOLD}%s${RESET}  ${WHITE}%s${RESET}  " "${frames[$i]}" "$label"
-        i=$(( (i+1) % ${#frames[@]} ))
-        sleep 0.08
-    done
-
-    wait "$pid"
-    local exit_code=$?
-    printf "\r%${COLS}s\r" ""   # clear spinner line
-
-    if [[ $exit_code -eq 0 ]]; then
-        log_ok "$label"
-    else
-        log_error "$label — FAILED"
-        cat "$tmpout" | sed 's/^/    /'
-        rm -f "$tmpout"
-        exit $exit_code
-    fi
-
-    rm -f "$tmpout"
-}
-
-# Fake-but-real progress bar (used while cargo compiles)
-progress_bar() {
-    local label="$1"
-    local duration="${2:-3}"
-    local width=40
-    local steps=$((width))
-    local delay; delay=$(echo "scale=4; $duration / $steps" | bc 2>/dev/null || echo "0.07")
-
-    echo -e "  ${DIM}${GRAY}$label${RESET}"
-    printf "  ${LBLUE}["
-    for ((i=0; i<steps; i++)); do
-        printf "${LGREEN}█${RESET}"
-        sleep "$delay" 2>/dev/null || true
-    done
-    printf "${LBLUE}]${RESET}  ${LGREEN}${BOLD}done${RESET}\n"
-}
-
-# ══════════════════════════════════════════════════════════════════
-#  BANNER
-# ══════════════════════════════════════════════════════════════════
-banner() {
-    clear 2>/dev/null || true
-    echo ""
-    echo -e "${BOLD}${LCYAN}"
-    center "██╗   ██╗ █████╗ ███╗   ███╗ ██████╗ ██████╗  █████╗ "
-    center "██║   ██║██╔══██╗████╗ ████║██╔═══██╗██╔══██╗██╔══██╗"
-    center "██║   ██║███████║██╔████╔██║██║   ██║██████╔╝███████║"
-    center "╚██╗ ██╔╝██╔══██║██║╚██╔╝██║██║   ██║██╔══██╗██╔══██║"
-    center " ╚████╔╝ ██║  ██║██║ ╚═╝ ██║╚██████╔╝██║  ██║██║  ██║"
-    center "  ╚═══╝  ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
-    echo -e "${RESET}"
-    echo ""
-    hr "═" "$BOLD$CYAN"
-    center "vaminfo  ·  installer" "${DIM}${LCYAN}"
-    hr "═" "$BOLD$CYAN"
-    echo ""
-}
-
-# ══════════════════════════════════════════════════════════════════
-#  OS DETECTION
-# ══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+#  § OS DETECTION
+# ══════════════════════════════════════════════════════════════════════════════
 detect_os() {
     local id="" id_like="" pretty=""
     if [[ -f /etc/os-release ]]; then
-        # shellcheck source=/dev/null
-        source /etc/os-release
-        id="${ID:-}"
-        id_like="${ID_LIKE:-}"
-        pretty="${PRETTY_NAME:-}"
+        source /etc/os-release          # sets ID, ID_LIKE, PRETTY_NAME
+        id="${ID:-}"; id_like="${ID_LIKE:-}"; pretty="${PRETTY_NAME:-}"
     elif [[ -f /etc/debian_version ]]; then id="debian"
     elif [[ -f /etc/arch-release ]];    then id="arch"
     elif [[ -f /etc/fedora-release ]];  then id="fedora"
     elif command -v uname &>/dev/null;  then id="$(uname -s | tr '[:upper:]' '[:lower:]')"
     fi
     # Override for Termux / Android — no /etc/os-release exists there
-    if [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d "/data/data/com.termux" ]]; then
-        id="android"; pretty="Android (Termux)"
-    fi
+    if $IS_TERMUX; then id="android"; pretty="Android (Termux)"; fi
     echo "${id}|${id_like}|${pretty}"
 }
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  § OS THEMES
+#  Each line:  "<ascii_file> <ascii_color> <title_color> <key_color> <value_color>"
+#
+#  TO ADD A NEW DISTRO:
+#    1. Add a case entry:   yourdistro)  echo "yourdistro.vtxt <color> <color> <color> white" ;;
+#    2. Drop the matching   yourdistro.vtxt  into the art/ folder
+#    3. Valid colors: black red green yellow blue magenta cyan white
+#                    bright_black bright_red bright_green bright_yellow
+#                    bright_blue bright_magenta bright_cyan bright_white
+# ══════════════════════════════════════════════════════════════════════════════
 distro_theme() {
-    local id="$1" id_like="$2"
-    id="${id,,}"; id_like="${id_like,,}"
+    local id="${1,,}" id_like="${2,,}"
     case "$id" in
-        debian)                    echo "debian.vtxt red red red white" ;;
-        ubuntu)                    echo "ubuntu.vtxt yellow yellow yellow white" ;;
-        linuxmint|mint)            echo "mint.vtxt green green green white" ;;
-        pop|pop_os)                echo "pop.vtxt cyan cyan cyan white" ;;
-        elementary)                echo "elementary.vtxt blue blue blue white" ;;
-        kali)                      echo "kali.vtxt blue blue blue white" ;;
-        raspbian)                  echo "raspbian.vtxt red red red white" ;;
-        mxlinux|mx)                echo "mx.vtxt blue blue blue white" ;;
-        zorin)                     echo "zorin.vtxt blue blue blue white" ;;
-        arch)                      echo "arch.vtxt cyan cyan cyan white" ;;
-        manjaro)                   echo "manjaro.vtxt green green green white" ;;
-        endeavouros|endeavour)     echo "endeavouros.vtxt magenta magenta magenta white" ;;
-        garuda)                    echo "garuda.vtxt magenta magenta magenta white" ;;
-        artix)                     echo "artix.vtxt cyan cyan cyan white" ;;
-        blackarch)                 echo "blackarch.vtxt red red red white" ;;
-        fedora)                    echo "fedora.vtxt blue blue blue white" ;;
-        rhel)                      echo "rhel.vtxt red red red white" ;;
-        centos)                    echo "centos.vtxt yellow yellow yellow white" ;;
-        almalinux|alma)            echo "alma.vtxt yellow yellow yellow white" ;;
-        rocky)                     echo "rocky.vtxt green green green white" ;;
-        opensuse*|suse)            echo "opensuse.vtxt green green green white" ;;
-        gentoo)                    echo "gentoo.vtxt magenta magenta magenta white" ;;
-        void)                      echo "void.vtxt green green green white" ;;
-        nixos)                     echo "nixos.vtxt blue blue blue white" ;;
-        alpine)                    echo "alpine.vtxt blue blue blue white" ;;
-        slackware)                 echo "slackware.vtxt blue blue blue white" ;;
-        darwin|macos|macosx)       echo "macos.vtxt white white cyan white" ;;
-        freebsd)                   echo "freebsd.vtxt red red red white" ;;
-        netbsd)                    echo "netbsd.vtxt yellow yellow yellow white" ;;
-        openbsd)                   echo "openbsd.vtxt yellow yellow yellow white" ;;
-        android)                   echo "android.vtxt green green green white" ;;
+        # ── Debian family ──────────────────────────────────────────────────
+        debian)                 echo "debian.vtxt red red red white" ;;
+        ubuntu)                 echo "ubuntu.vtxt yellow yellow yellow white" ;;
+        linuxmint|mint)         echo "mint.vtxt green green green white" ;;
+        pop|pop_os)             echo "pop.vtxt cyan cyan cyan white" ;;
+        elementary)             echo "elementary.vtxt blue blue blue white" ;;
+        kali)                   echo "kali.vtxt blue blue blue white" ;;
+        raspbian)               echo "raspbian.vtxt red red red white" ;;
+        mxlinux|mx)             echo "mx.vtxt blue blue blue white" ;;
+        zorin)                  echo "zorin.vtxt blue blue blue white" ;;
+        # ── Arch family ────────────────────────────────────────────────────
+        arch)                   echo "arch.vtxt cyan cyan cyan white" ;;
+        manjaro)                echo "manjaro.vtxt green green green white" ;;
+        endeavouros|endeavour)  echo "endeavouros.vtxt magenta magenta magenta white" ;;
+        garuda)                 echo "garuda.vtxt magenta magenta magenta white" ;;
+        artix)                  echo "artix.vtxt cyan cyan cyan white" ;;
+        blackarch)              echo "blackarch.vtxt red red red white" ;;
+        # ── Red Hat family ─────────────────────────────────────────────────
+        fedora)                 echo "fedora.vtxt blue blue blue white" ;;
+        rhel)                   echo "rhel.vtxt red red red white" ;;
+        centos)                 echo "centos.vtxt yellow yellow yellow white" ;;
+        almalinux|alma)         echo "alma.vtxt yellow yellow yellow white" ;;
+        rocky)                  echo "rocky.vtxt green green green white" ;;
+        # ── SUSE ───────────────────────────────────────────────────────────
+        opensuse*|suse)         echo "opensuse.vtxt green green green white" ;;
+        # ── Other Linux ────────────────────────────────────────────────────
+        gentoo)                 echo "gentoo.vtxt magenta magenta magenta white" ;;
+        void)                   echo "void.vtxt green green green white" ;;
+        nixos)                  echo "nixos.vtxt blue blue blue white" ;;
+        alpine)                 echo "alpine.vtxt blue blue blue white" ;;
+        slackware)              echo "slackware.vtxt blue blue blue white" ;;
+        # ── Android / Termux ───────────────────────────────────────────────
+        android)                echo "android.vtxt green green green white" ;;
+        # ── BSD / macOS ────────────────────────────────────────────────────
+        darwin|macos|macosx)    echo "macos.vtxt white white cyan white" ;;
+        freebsd)                echo "freebsd.vtxt red red red white" ;;
+        netbsd)                 echo "netbsd.vtxt yellow yellow yellow white" ;;
+        openbsd)                echo "openbsd.vtxt yellow yellow yellow white" ;;
+        # ── Fallback via ID_LIKE chain ──────────────────────────────────────
         *)
             if   [[ "$id_like" == *"debian"* || "$id_like" == *"ubuntu"* ]]; then
                 echo "debian.vtxt red red red white"
-            elif [[ "$id_like" == *"arch"* ]]; then
+            elif [[ "$id_like" == *"arch"* ]];  then
                 echo "arch.vtxt cyan cyan cyan white"
             elif [[ "$id_like" == *"fedora"* || "$id_like" == *"rhel"* ]]; then
                 echo "fedora.vtxt blue blue blue white"
-            elif [[ "$id_like" == *"suse"* ]]; then
+            elif [[ "$id_like" == *"suse"* ]];  then
                 echo "opensuse.vtxt green green green white"
             else
-                echo "vamora1.vtxt blue bright_blue bright_blue white"
+                # Unknown distro — VamoraSys generic fallback
+                echo "ascii1.vtxt blue bright_blue bright_blue white"
             fi ;;
     esac
 }
 
-# ══════════════════════════════════════════════════════════════════
-#  CONFIG GENERATOR
-# ══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+#  § CONFIG GENERATOR
+#  TO ADD/REMOVE A MODULE: edit the [modules] block below.
+#  TO CHANGE MODULE ORDER: edit the module_order array below.
+#  Format must be valid TOML — strings in quotes, booleans lowercase.
+# ══════════════════════════════════════════════════════════════════════════════
 generate_config() {
     local ascii_file="$1" ascii_color="$2" title_color="$3"
-    local key_color="$4" value_color="$5" config_path="$6"
-    cat > "$config_path" <<EOF
+    local key_color="$4" value_color="$5"
+
+    cat > "$CONFIG_FILE" <<EOF
 ascii_file = "${ascii_file}"
 ascii_color = "${ascii_color}"
 title_color = "${title_color}"
@@ -234,6 +186,42 @@ separator = "-"
 mini_mode = false
 show_title = true
 show_separator = true
+module_order = [
+    "color_blocks_big",
+    "vamorasys_version",
+    "vmf_version",
+    "vamora_version_codename",
+    "hostname",
+    "kernel",
+    "bios",
+    "android_version",
+    "android_device",
+    "cpu",
+    "gpu",
+    "ram",
+    "disk",
+    "battery",
+    "bluetooth",
+    "uptime",
+    "sys_age",
+    "shell",
+    "terminal",
+    "tty_type",
+    "desktop",
+    "display_server",
+    "resolution",
+    "theme",
+    "fs_type",
+    "sudo_status",
+    "local_ip",
+    "public_ip",
+    "network",
+    "birthday_countdown",
+    "quotes",
+    "jokes",
+    "color_blocks_small",
+    "os",
+]
 
 [greetings]
 enabled = false
@@ -241,49 +229,48 @@ birthday = ""
 events = []
 
 [modules]
-hostname = true
-os = true
-kernel = true
-bios = true
-cpu = true
-gpu = true
-ram = true
-disk = true
-uptime = false
-shell = true
-terminal = true
-desktop = true
-resolution = true
-display_server = true
-theme = true
-tty_type = true
-fs_type = true
-sys_age = true
-local_ip = true
-public_ip = false
-network = true
-bluetooth = true
-battery = true
-android_version = true
-android_device = true
-sudo_status = true
-birthday_countdown = false
-vamora_os = true
-quotes = false
-jokes = false
-media = false
-color_blocks_big = true
-color_blocks_small = false
+hostname              = true
+os                    = true
+kernel                = true
+bios                  = true
+cpu                   = true
+gpu                   = true
+ram                   = true
+disk                  = true
+uptime                = false
+shell                 = true
+terminal              = true
+desktop               = true
+resolution            = true
+display_server        = true
+theme                 = true
+tty_type              = true
+fs_type               = true
+sys_age               = true
+local_ip              = true
+public_ip             = false
+network               = true
+bluetooth             = true
+battery               = true
+android_version       = true
+android_device        = true
+sudo_status           = true
+birthday_countdown    = false
+vamorasys_version     = true
+vmf_version           = true
+vamora_version_codename = true
+quotes                = false
+jokes                 = false
+color_blocks_big      = true
+color_blocks_small    = false
 EOF
 }
 
-# ══════════════════════════════════════════════════════════════════
-#  DONE SCREEN
-# ══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+#  § DONE SCREEN
+# ══════════════════════════════════════════════════════════════════════════════
 done_screen() {
-    local binname="$1" bindir="$2" os_pretty="$3"
-    local afile="$4" acolor="$5"
-
+    local os_pretty="$1" afile="$2" acolor="$3"
     echo ""
     hr "═" "$BOLD$LGREEN"
     echo ""
@@ -298,181 +285,141 @@ done_screen() {
     echo ""
     hr "─" "$DIM$LGREEN"
     echo ""
-
     echo -e "  ${DIM}${GRAY}System   ${RESET}  ${WHITE}${os_pretty}${RESET}"
-    echo -e "  ${DIM}${GRAY}Binary   ${RESET}  ${LGREEN}${BOLD}${bindir}/${binname}${RESET}"
-    echo -e "  ${DIM}${GRAY}Art      ${RESET}  ${LCYAN}~/.VamoraSys/apps/vaminfo/art/${RESET}"
-    echo -e "  ${DIM}${GRAY}Config   ${RESET}  ${LCYAN}~/.VamoraSys/apps/vaminfo/config.vmf${RESET}"
+    echo -e "  ${DIM}${GRAY}Binary   ${RESET}  ${LGREEN}${BOLD}${BIN_DIR}/${BINARY_NAME}${RESET}"
+    echo -e "  ${DIM}${GRAY}Art      ${RESET}  ${LCYAN}${ART_DIR}/${RESET}"
+    echo -e "  ${DIM}${GRAY}Config   ${RESET}  ${LCYAN}${CONFIG_FILE}${RESET}"
     echo -e "  ${DIM}${GRAY}Theme    ${RESET}  ${LYELLOW}${afile}${RESET}  ${DIM}(${acolor})${RESET}"
-
     echo ""
     hr "─" "$DIM$LGREEN"
     echo ""
-    echo -e "  ${BOLD}${LWHITE}Launch it anytime:${RESET}"
+    echo -e "  ${BOLD}${LWHITE}Commands:${RESET}"
     echo ""
-    echo -e "  ${BG_BLACK}${BOLD}${LCYAN}  $ ${LGREEN}${binname}${RESET}${BG_BLACK}                                  ${RESET}"
+    echo -e "  ${BG_BLACK}${BOLD}${LCYAN}  $ ${LGREEN}${BINARY_NAME}${RESET}${BG_BLACK}                — show system info      ${RESET}"
+    echo -e "  ${BG_BLACK}${BOLD}${LCYAN}  $ ${LGREEN}${BINARY_NAME} config${RESET}${BG_BLACK}         — interactive setup      ${RESET}"
+    echo -e "  ${BG_BLACK}${BOLD}${LCYAN}  $ ${LGREEN}${BINARY_NAME} --mini${RESET}${BG_BLACK}          — minimal quick view     ${RESET}"
+    echo -e "  ${BG_BLACK}${BOLD}${LCYAN}  $ ${LGREEN}${BINARY_NAME} --help${RESET}${BG_BLACK}          — all commands           ${RESET}"
     echo ""
     hr "═" "$BOLD$LGREEN"
     echo ""
 }
 
-# ══════════════════════════════════════════════════════════════════
-#  ENVIRONMENT DETECTION
-# ══════════════════════════════════════════════════════════════════
-IS_TERMUX=false
-if [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d "/data/data/com.termux" ]]; then
-    IS_TERMUX=true
-fi
-
-# Pick the right bin dir and sudo wrapper
-pick_bin_dir() {
-    if $IS_TERMUX; then
-        # Termux exposes $PREFIX; fall back to the well-known path
-        echo "${PREFIX:-/data/data/com.termux/files/usr}/bin"
-    elif [[ -w "/usr/local/bin" ]]; then
-        echo "/usr/local/bin"
-    elif [[ -w "/bin" ]]; then
-        echo "/bin"
-    else
-        echo "/usr/local/bin"   # will use sudo below
-    fi
-}
-
-# On Termux sudo doesn't exist — this wrapper is a no-op there
-maybe_sudo() {
-    if $IS_TERMUX; then
-        "$@"
-    else
-        sudo "$@"
-    fi
-}
-
-# ══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 #  MAIN
-# ══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-banner
+# ── Banner ────────────────────────────────────────────────────────────────────
+clear 2>/dev/null || true
+echo ""
+echo -e "${BOLD}${LCYAN}"
+center "██╗   ██╗ █████╗ ███╗   ███╗ ██████╗ ██████╗  █████╗ "
+center "██║   ██║██╔══██╗████╗ ████║██╔═══██╗██╔══██╗██╔══██╗"
+center "██║   ██║███████║██╔████╔██║██║   ██║██████╔╝███████║"
+center "╚██╗ ██╔╝██╔══██║██║╚██╔╝██║██║   ██║██╔══██╗██╔══██║"
+center " ╚████╔╝ ██║  ██║██║ ╚═╝ ██║╚██████╔╝██║  ██║██║  ██║"
+center "  ╚═══╝  ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
+echo -e "${RESET}"
+echo ""
+hr "═" "$BOLD$CYAN"
+center "vaminfo  ·  installer" "${DIM}${LCYAN}"
+hr "═" "$BOLD$CYAN"
+echo ""
 
-# ─── PHASE 1 : Preflight ──────────────────────────────────────
-phase "[ 1 / 4 ]  PREFLIGHT CHECKS"
+# ── Phase 1 : Rust toolchain ──────────────────────────────────────────────────
+phase "[ 1 / 4 ]  RUST TOOLCHAIN"
 
-for cmd in cargo cp mkdir bc; do
-    if command -v "$cmd" &>/dev/null; then
-        log_ok "${BOLD}${cmd}${RESET}${LGREEN}  →  $(command -v "$cmd")"
-    else
-        [[ "$cmd" == "bc" ]] && { log_warn "bc not found — spinner timing may be imprecise"; continue; }
-        die "'${cmd}' is not installed. Please install it and re-run."
-    fi
-done
-
-BIN_DIR="$(pick_bin_dir)"
+if ! command -v cargo &>/dev/null; then
+    log_warn "Rust not found — installing via rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+    # shellcheck source=/dev/null
+    source "$HOME/.cargo/env"
+    log_ok "Rust installed: $(rustc --version)"
+else
+    log_ok "Rust found: ${BOLD}$(rustc --version)${RESET}"
+fi
 
 if $IS_TERMUX; then
-    log_info "Environment     →  ${BOLD}${LYELLOW}Termux (Android)${RESET}"
-    log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}  ${DIM}(Termux prefix)${RESET}"
+    log_info "Environment  →  ${BOLD}${LYELLOW}Termux (Android)${RESET}"
 else
-    log_info "Environment     →  ${BOLD}Linux / macOS${RESET}"
-    log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}"
+    log_info "Environment  →  ${BOLD}Linux / macOS${RESET}"
 fi
-
-if [[ ! -f "${SCRIPT_DIR}/Cargo.toml" ]]; then
-    die "No Cargo.toml found in ${SCRIPT_DIR}"
-fi
-log_ok "Cargo.toml found"
+log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}"
 
 divider
 
-# ─── PHASE 2 : Build ──────────────────────────────────────────
-phase "[ 2 / 4 ]  COMPILING RUST PROJECT"
+# ── Phase 2 : Build ───────────────────────────────────────────────────────────
+phase "[ 2 / 4 ]  COMPILING"
 
 log_info "Running ${BOLD}cargo build --release${RESET} …"
 echo ""
-
-# Run cargo, stream output indented, then show progress bar
 (cd "$SCRIPT_DIR" && cargo build --release 2>&1) | sed 's/^/    /'
-
 echo ""
-log_ok "Compilation finished"
 
-BINARY_NAME="$(cd "$SCRIPT_DIR" && cargo metadata --no-deps --format-version 1 \
-    | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)"
-BINARY_PATH="${SCRIPT_DIR}/target/release/${BINARY_NAME}"
-
-if [[ ! -f "$BINARY_PATH" ]]; then
-    BINARY_PATH="$(find "${SCRIPT_DIR}/target/release" -maxdepth 1 -type f -executable | head -1)"
-    [[ -z "$BINARY_PATH" ]] && die "Could not locate compiled binary in target/release/"
-    BINARY_NAME="$(basename "$BINARY_PATH")"
-fi
+BINARY="$SCRIPT_DIR/target/release/$BINARY_NAME"
+[[ ! -f "$BINARY" ]] && die "Binary not found at $BINARY — build may have failed."
 
 log_ok "Binary ready  →  ${BOLD}${BINARY_NAME}${RESET}"
-log_dim "$(du -sh "$BINARY_PATH" | cut -f1) on disk"
+log_dim "$(du -sh "$BINARY" | cut -f1) on disk"
 divider
 
-# ─── PHASE 3 : Install files ──────────────────────────────────
+# ── Phase 3 : Install files ───────────────────────────────────────────────────
 phase "[ 3 / 4 ]  INSTALLING FILES"
 
 # Binary
 log_info "Copying binary to ${BOLD}${BIN_DIR}${RESET} …"
 if [[ -w "$BIN_DIR" ]]; then
-    cp "$BINARY_PATH" "${BIN_DIR}/${BINARY_NAME}"
-    chmod +x "${BIN_DIR}/${BINARY_NAME}"
+    cp "$BINARY" "$BIN_DIR/$BINARY_NAME"
+    chmod +x "$BIN_DIR/$BINARY_NAME"
 else
     log_warn "Need elevated privileges to write to ${BIN_DIR}"
-    maybe_sudo cp "$BINARY_PATH" "${BIN_DIR}/${BINARY_NAME}"
-    maybe_sudo chmod +x "${BIN_DIR}/${BINARY_NAME}"
+    maybe_sudo cp "$BINARY" "$BIN_DIR/$BINARY_NAME"
+    maybe_sudo chmod +x "$BIN_DIR/$BINARY_NAME"
 fi
 log_ok "Binary installed  →  ${BOLD}${BIN_DIR}/${BINARY_NAME}${RESET}"
-
 echo ""
 
-# Art
-ART_SRC="${SCRIPT_DIR}/art"
-ART_DST="${HOME}/.VamoraSys/apps/vaminfo/art"
+# Directories
+mkdir -p "$VAMINFO_DIR" "$ART_DIR"
+log_ok "Directories created"
 
-if [[ ! -d "$ART_SRC" ]]; then
-    log_warn "No 'art/' folder found at ${ART_SRC} — skipping"
-else
+# Art (cp -n = don't overwrite files the user may have customised)
+if [[ -d "$SCRIPT_DIR/art" ]]; then
     log_info "Copying art assets …"
-    mkdir -p "$ART_DST"
-    cp -r "${ART_SRC}/." "$ART_DST/"
-    ART_COUNT=$(find "$ART_DST" -type f | wc -l | tr -d ' ')
-    log_ok "Art installed  →  ${BOLD}${ART_DST}${RESET}  ${DIM}(${ART_COUNT} files)${RESET}"
+    cp -n "$SCRIPT_DIR/art/"*.vtxt "$ART_DIR/" 2>/dev/null || true
+    ART_COUNT=$(find "$ART_DIR" -name "*.vtxt" | wc -l | tr -d ' ')
+    log_ok "Art installed  →  ${BOLD}${ART_DIR}${RESET}  ${DIM}(${ART_COUNT} files)${RESET}"
+else
+    log_warn "No art/ folder found at ${SCRIPT_DIR}/art — skipping"
 fi
 
 divider
 
-# ─── PHASE 4 : OS detection & config ─────────────────────────
+# ── Phase 4 : OS detection & config ───────────────────────────────────────────
 phase "[ 4 / 4 ]  DETECTING OS & WRITING CONFIG"
 
 IFS='|' read -r OS_ID OS_ID_LIKE OS_PRETTY <<< "$(detect_os)"
 DISPLAY_OS="${OS_PRETTY:-$OS_ID}"
 
 echo ""
-echo -e "  ${DIM}${GRAY}Detected system:${RESET}"
-echo ""
-
-# Draw a little OS card
-PAD="    "
-echo -e "${PAD}${BOLD}${LCYAN}┌─────────────────────────────────────┐${RESET}"
-printf  "${PAD}${BOLD}${LCYAN}│${RESET}  %-35s ${BOLD}${LCYAN}│${RESET}\n" "$(echo -e "${LWHITE}${BOLD}${DISPLAY_OS}${RESET}")"
-printf  "${PAD}${BOLD}${LCYAN}│${RESET}  ${DIM}%-35s${RESET} ${BOLD}${LCYAN}│${RESET}\n" "id: ${OS_ID}   id_like: ${OS_ID_LIKE:-none}"
-echo -e "${PAD}${BOLD}${LCYAN}└─────────────────────────────────────┘${RESET}"
+echo -e "    ${BOLD}${LCYAN}┌─────────────────────────────────────┐${RESET}"
+printf  "    ${BOLD}${LCYAN}│${RESET}  %-35s ${BOLD}${LCYAN}│${RESET}\n" "${DISPLAY_OS}"
+printf  "    ${BOLD}${LCYAN}│${RESET}  ${DIM}id: %-10s  id_like: %-14s${RESET} ${BOLD}${LCYAN}│${RESET}\n" "${OS_ID}" "${OS_ID_LIKE:-none}"
+echo -e "    ${BOLD}${LCYAN}└─────────────────────────────────────┘${RESET}"
 echo ""
 
 read -r AFILE ACOLOR TCOLOR KCOLOR VCOLOR <<< "$(distro_theme "$OS_ID" "$OS_ID_LIKE")"
 
-CONFIG_DIR="${HOME}/.VamoraSys/apps/vaminfo"
-CONFIG_FILE="${CONFIG_DIR}/config.vmf"
-mkdir -p "$CONFIG_DIR"
-generate_config "$AFILE" "$ACOLOR" "$TCOLOR" "$KCOLOR" "$VCOLOR" "$CONFIG_FILE"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    log_info "Generating config …"
+    generate_config "$AFILE" "$ACOLOR" "$TCOLOR" "$KCOLOR" "$VCOLOR"
+    log_ok "Config written  →  ${BOLD}${CONFIG_FILE}${RESET}"
+else
+    log_info "Config already exists — skipping  ${DIM}(delete it to regenerate)${RESET}"
+fi
 
-log_ok "Config written  →  ${BOLD}${CONFIG_FILE}${RESET}"
 echo ""
-
-# Theme preview table
 echo -e "  ${BOLD}${LCYAN}Theme applied:${RESET}"
-echo ""
 echo -e "  ${DIM}${GRAY}  ascii_file   ${RESET}  ${LYELLOW}${AFILE}${RESET}"
 echo -e "  ${DIM}${GRAY}  ascii_color  ${RESET}  ${LMAGENTA}${ACOLOR}${RESET}"
 echo -e "  ${DIM}${GRAY}  title_color  ${RESET}  ${LMAGENTA}${TCOLOR}${RESET}"
@@ -480,5 +427,16 @@ echo -e "  ${DIM}${GRAY}  key_color    ${RESET}  ${LMAGENTA}${KCOLOR}${RESET}"
 echo -e "  ${DIM}${GRAY}  value_color  ${RESET}  ${LMAGENTA}${VCOLOR}${RESET}"
 echo ""
 
-# ─── DONE ─────────────────────────────────────────────────────
-done_screen "$BINARY_NAME" "$BIN_DIR" "$DISPLAY_OS" "$AFILE" "$ACOLOR"
+# ── PATH verification ─────────────────────────────────────────────────────────
+if command -v "$BINARY_NAME" &>/dev/null; then
+    log_ok "${BINARY_NAME} is on PATH and ready"
+else
+    log_warn "${BINARY_NAME} installed but may not be on PATH yet"
+    log_warn "Add this to your shell profile (~/.bashrc / ~/.zshrc):"
+    echo ""
+    echo -e "    ${LYELLOW}export PATH=\"${BIN_DIR}:\$PATH\"${RESET}"
+    echo ""
+fi
+
+# ── Done ──────────────────────────────────────────────────────────────────────
+done_screen "$DISPLAY_OS" "$AFILE" "$ACOLOR"
