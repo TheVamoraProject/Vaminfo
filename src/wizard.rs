@@ -364,18 +364,19 @@ fn wizard_modules(cfg: &mut VaminfoConfig) {
         println!("  25) Android version  [{}]  (Android/Termux only)", tl(m.android_version));
         println!("  26) Android device   [{}]  (Android/Termux only)", tl(m.android_device));
         println!("{}", "  -- VamoraOS --".dimmed());
-        println!("  27) VamoraOS info    [{}]  (only if /etc/VamoraSys/ exists)", tl(m.vamora_os));
+        println!("  27) VamoraSys version   [{}]  (only if /etc/VamoraSys/ exists)", tl(m.vamorasys_version));
+        println!("  28) VMF version         [{}]  (only if /etc/VamoraSys/ exists)", tl(m.vmf_version));
+        println!("  29) Vamora ver+codename [{}]  (only if /etc/VamoraSys/ exists)", tl(m.vamora_version_codename));
         println!("{}", "  -- Fun / Optional --".dimmed());
-        println!("  28) Birthday cntdwn  [{}]  (requires birthday in greetings)", tl(m.birthday_countdown));
-        println!("  29) Media / Playing  [{}]", tl(m.media));
-        println!("  30) Quotes           [{}]", tl(m.quotes));
-        println!("  31) Linux Jokes      [{}]", tl(m.jokes));
+        println!("  30) Birthday cntdwn  [{}]  (requires birthday in greetings)", tl(m.birthday_countdown));
+        println!("  31) Quotes           [{}]", tl(m.quotes));
+        println!("  32) Linux Jokes      [{}]", tl(m.jokes));
         println!("{}", "  -- Color Blocks --".dimmed());
-        println!("  32) Color blocks big [{}]", tl(m.color_blocks_big));
-        println!("  33) Color blocks sml [{}]", tl(m.color_blocks_small));
+        println!("  33) Color blocks big [{}]", tl(m.color_blocks_big));
+        println!("  34) Color blocks sml [{}]", tl(m.color_blocks_small));
         println!("   0) Back");
 
-        let input = prompt("Toggle [0-33]: ");
+        let input = prompt("Toggle [0-34]: ");
         match input.as_str() {
             "0"  => break,
             "1"  => cfg.modules.hostname           = !cfg.modules.hostname,
@@ -404,13 +405,14 @@ fn wizard_modules(cfg: &mut VaminfoConfig) {
             "24" => cfg.modules.network            = !cfg.modules.network,
             "25" => cfg.modules.android_version    = !cfg.modules.android_version,
             "26" => cfg.modules.android_device     = !cfg.modules.android_device,
-            "27" => cfg.modules.vamora_os          = !cfg.modules.vamora_os,
-            "28" => cfg.modules.birthday_countdown = !cfg.modules.birthday_countdown,
-            "29" => cfg.modules.media              = !cfg.modules.media,
-            "30" => cfg.modules.quotes             = !cfg.modules.quotes,
-            "31" => cfg.modules.jokes              = !cfg.modules.jokes,
-            "32" => cfg.modules.color_blocks_big   = !cfg.modules.color_blocks_big,
-            "33" => cfg.modules.color_blocks_small = !cfg.modules.color_blocks_small,
+            "27" => cfg.modules.vamorasys_version       = !cfg.modules.vamorasys_version,
+            "28" => cfg.modules.vmf_version             = !cfg.modules.vmf_version,
+            "29" => cfg.modules.vamora_version_codename = !cfg.modules.vamora_version_codename,
+            "30" => cfg.modules.birthday_countdown      = !cfg.modules.birthday_countdown,
+            "31" => cfg.modules.quotes                  = !cfg.modules.quotes,
+            "32" => cfg.modules.jokes                   = !cfg.modules.jokes,
+            "33" => cfg.modules.color_blocks_big        = !cfg.modules.color_blocks_big,
+            "34" => cfg.modules.color_blocks_small      = !cfg.modules.color_blocks_small,
             _    => println!("{}", "Invalid option.".red()),
         }
     }

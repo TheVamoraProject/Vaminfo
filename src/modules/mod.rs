@@ -14,7 +14,6 @@ pub mod hostname;
 pub mod jokes;
 pub mod kernel;
 pub mod local_ip;
-pub mod media;
 pub mod network;
 pub mod os_info;
 pub mod public_ip;
@@ -44,13 +43,10 @@ pub fn build_modules(cfg: &VaminfoConfig) -> Vec<Box<dyn Module>> {
     // ── OS (smart: VamoraOS PRETTY_NAME / Android / Linux) ───────────────────
     if cfg.modules.os { m.push(Box::new(os_info::OsModule)); }
 
-    // ── VamoraOS sub-details (only visible when release file exists) ──────────
-    if cfg.modules.vamora_os {
-        m.push(Box::new(vamora_os::VamoraVersionModule));
-        m.push(Box::new(vamora_os::VamoraCodenameModule));
-        m.push(Box::new(vamora_os::VamoraBuildModule));
-        m.push(Box::new(vamora_os::VamoraArchModule));
-    }
+    // ── VamoraOS (each independently toggled) ────────────────────────────────
+    if cfg.modules.vamorasys_version       { m.push(Box::new(vamora_os::VamoraSysVersionModule)); }
+    if cfg.modules.vmf_version             { m.push(Box::new(vamora_os::VmfVersionModule)); }
+    if cfg.modules.vamora_version_codename { m.push(Box::new(vamora_os::VamoraVersionCodenameModule)); }
 
     // ── System identity ───────────────────────────────────────────────────────
     if cfg.modules.hostname { m.push(Box::new(hostname::HostnameModule)); }
@@ -91,7 +87,6 @@ pub fn build_modules(cfg: &VaminfoConfig) -> Vec<Box<dyn Module>> {
 
     // ── Fun / Optional ────────────────────────────────────────────────────────
     if cfg.modules.birthday_countdown { m.push(Box::new(birthday_countdown::BirthdayCountdownModule)); }
-    if cfg.modules.media   { m.push(Box::new(media::MediaModule)); }
     if cfg.modules.quotes  { m.push(Box::new(quotes::QuotesModule)); }
     if cfg.modules.jokes   { m.push(Box::new(jokes::JokesModule)); }
 

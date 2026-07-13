@@ -2,22 +2,43 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+// ── Default-value helpers ─────────────────────────────────────────────────────
+// serde needs free functions for #[serde(default = "...")]
+
+fn default_ascii_file()  -> String { "ascii1.vtxt".to_string() }
+fn default_ascii_color() -> String { "blue".to_string() }
+fn default_title_color() -> String { "bright_blue".to_string() }
+fn default_key_color()   -> String { "bright_blue".to_string() }
+fn default_value_color() -> String { "white".to_string() }
+fn default_separator()   -> String { "-".to_string() }
+fn default_true()        -> bool   { true }
+
 // ── Top-level config ─────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VaminfoConfig {
-    pub ascii_file:       String,
-    pub ascii_color:      String,
-    pub title_color:      String,
-    pub key_color:        String,
-    pub value_color:      String,
-    pub separator:        String,
-    pub mini_mode:        bool,
-    pub show_title:       bool,
-    pub show_separator:   bool,
+    #[serde(default = "default_ascii_file")]
+    pub ascii_file:     String,
+    #[serde(default = "default_ascii_color")]
+    pub ascii_color:    String,
+    #[serde(default = "default_title_color")]
+    pub title_color:    String,
+    #[serde(default = "default_key_color")]
+    pub key_color:      String,
+    #[serde(default = "default_value_color")]
+    pub value_color:    String,
+    #[serde(default = "default_separator")]
+    pub separator:      String,
     #[serde(default)]
-    pub greetings:        GreetingsConfig,
-    pub modules:          ModuleConfig,
+    pub mini_mode:      bool,
+    #[serde(default = "default_true")]
+    pub show_title:     bool,
+    #[serde(default = "default_true")]
+    pub show_separator: bool,
+    #[serde(default)]
+    pub greetings:      GreetingsConfig,
+    #[serde(default)]
+    pub modules:        ModuleConfig,
 }
 
 // ── Greetings / Events ────────────────────────────────────────────────────────
@@ -26,7 +47,6 @@ pub struct VaminfoConfig {
 pub struct GreetingsConfig {
     #[serde(default)]
     pub enabled:  bool,
-    /// MM-DD, e.g. "07-15"
     #[serde(default)]
     pub birthday: String,
     #[serde(default)]
@@ -35,56 +55,60 @@ pub struct GreetingsConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GreetingEvent {
-    /// MM-DD
     pub date:    String,
     pub name:    String,
     pub message: String,
 }
 
 // ── Module toggles ────────────────────────────────────────────────────────────
+//
+// Fields that default ON  → #[serde(default = "default_true")]
+// Fields that default OFF → #[serde(default)]   (bool default = false)
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleConfig {
     // Core
-    pub hostname:           bool,
-    pub os:                 bool,
-    pub kernel:             bool,
-    pub bios:               bool,
-    pub cpu:                bool,
-    pub gpu:                bool,
-    pub ram:                bool,
-    pub disk:               bool,
-    pub uptime:             bool,
-    pub shell:              bool,
-    pub terminal:           bool,
-    pub desktop:            bool,
-    pub resolution:         bool,
-    pub display_server:     bool,
-    pub theme:              bool,
-    pub tty_type:           bool,
-    pub fs_type:            bool,
-    pub sys_age:            bool,
+    #[serde(default = "default_true")]  pub hostname:           bool,
+    #[serde(default = "default_true")]  pub os:                 bool,
+    #[serde(default = "default_true")]  pub kernel:             bool,
+    #[serde(default = "default_true")]  pub bios:               bool,
+    #[serde(default = "default_true")]  pub cpu:                bool,
+    #[serde(default = "default_true")]  pub gpu:                bool,
+    #[serde(default = "default_true")]  pub ram:                bool,
+    #[serde(default = "default_true")]  pub disk:               bool,
+    #[serde(default)]                   pub uptime:             bool,
+    #[serde(default = "default_true")]  pub shell:              bool,
+    #[serde(default = "default_true")]  pub terminal:           bool,
+    #[serde(default = "default_true")]  pub desktop:            bool,
+    #[serde(default = "default_true")]  pub resolution:         bool,
+    #[serde(default = "default_true")]  pub display_server:     bool,
+    #[serde(default = "default_true")]  pub theme:              bool,
+    #[serde(default = "default_true")]  pub tty_type:           bool,
+    #[serde(default = "default_true")]  pub fs_type:            bool,
+    #[serde(default = "default_true")]  pub sys_age:            bool,
     // Network
-    pub local_ip:           bool,
-    pub public_ip:          bool,
-    pub network:            bool,
+    #[serde(default = "default_true")]  pub local_ip:           bool,
+    #[serde(default)]                   pub public_ip:          bool,
+    #[serde(default = "default_true")]  pub network:            bool,
     // Hardware
-    pub bluetooth:          bool,
-    pub battery:            bool,
-    // Android
-    pub android_version:    bool,
-    pub android_device:     bool,
+    #[serde(default = "default_true")]  pub bluetooth:          bool,
+    #[serde(default = "default_true")]  pub battery:            bool,
+    // Android (only shows on Android / Termux)
+    #[serde(default = "default_true")]  pub android_version:    bool,
+    #[serde(default = "default_true")]  pub android_device:     bool,
     // System
-    pub sudo_status:        bool,
-    pub birthday_countdown: bool,
-    pub vamora_os:          bool,
-    // Fun
-    pub quotes:             bool,
-    pub jokes:              bool,
-    pub media:              bool,
+    #[serde(default = "default_true")]  pub sudo_status:        bool,
+    #[serde(default)]                   pub birthday_countdown:      bool,
+    // VamoraOS (each only shows if /etc/VamoraSys/vamora-release.vmf exists)
+    #[serde(default = "default_true")]  pub vamorasys_version:       bool,
+    #[serde(default = "default_true")]  pub vmf_version:             bool,
+    #[serde(default = "default_true")]  pub vamora_version_codename: bool,
+    // Fun / Optional
+    #[serde(default)]                   pub quotes:             bool,
+    #[serde(default)]                   pub jokes:              bool,
     // Display
-    pub color_blocks_big:   bool,
-    pub color_blocks_small: bool,
+    #[serde(default = "default_true")]  pub color_blocks_big:   bool,
+    #[serde(default)]                   pub color_blocks_small: bool,
 }
 
 impl Default for ModuleConfig {
@@ -109,18 +133,19 @@ impl Default for ModuleConfig {
             fs_type:            true,
             sys_age:            true,
             local_ip:           true,
-            public_ip:          false,  // makes a network request
+            public_ip:          false,
             network:            true,
             bluetooth:          true,
             battery:            true,
-            android_version:    true,   // only shows on Android
-            android_device:     true,   // only shows on Android
-            sudo_status:        true,
-            birthday_countdown: false,  // requires birthday set in greetings config
-            vamora_os:          true,   // only shows if /etc/VamoraSys/vamora-release.vmf exists
+            android_version:    true,
+            android_device:     true,
+            sudo_status:             true,
+            birthday_countdown:      false,
+            vamorasys_version:       true,
+            vmf_version:             true,
+            vamora_version_codename: true,
             quotes:             false,
             jokes:              false,
-            media:              false,
             color_blocks_big:   true,
             color_blocks_small: false,
         }
@@ -130,17 +155,17 @@ impl Default for ModuleConfig {
 impl Default for VaminfoConfig {
     fn default() -> Self {
         Self {
-            ascii_file:      "ascii1.vtxt".to_string(),
-            ascii_color:     "blue".to_string(),
-            title_color:     "bright_blue".to_string(),
-            key_color:       "bright_blue".to_string(),
-            value_color:     "white".to_string(),
-            separator:       "-".to_string(),
-            mini_mode:       false,
-            show_title:      true,
-            show_separator:  true,
-            greetings:       GreetingsConfig::default(),
-            modules:         ModuleConfig::default(),
+            ascii_file:    "ascii1.vtxt".to_string(),
+            ascii_color:   "blue".to_string(),
+            title_color:   "bright_blue".to_string(),
+            key_color:     "bright_blue".to_string(),
+            value_color:   "white".to_string(),
+            separator:     "-".to_string(),
+            mini_mode:     false,
+            show_title:    true,
+            show_separator: true,
+            greetings:     GreetingsConfig::default(),
+            modules:       ModuleConfig::default(),
         }
     }
 }
@@ -178,8 +203,8 @@ impl VaminfoConfig {
         if path.exists() {
             match Self::load_from(&path) {
                 Ok(cfg) => return cfg,
-                Err(_) => {
-                    eprintln!("[vaminfo] Config parse error -- using defaults.");
+                Err(e) => {
+                    eprintln!("[vaminfo] Config parse error ({}), using defaults.", e);
                     return Self::default();
                 }
             }
@@ -191,6 +216,8 @@ impl VaminfoConfig {
 
     fn load_from(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let content = fs::read_to_string(path)?;
+        // toml + serde: unknown keys are silently ignored (no deny_unknown_fields),
+        // and every field has #[serde(default = ...)] so missing keys use proper defaults.
         let cfg: Self = toml::from_str(&content)?;
         Ok(cfg)
     }
