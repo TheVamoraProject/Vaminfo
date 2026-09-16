@@ -35,6 +35,9 @@ pub struct VaminfoConfig {
     pub show_title:     bool,
     #[serde(default = "default_true")]
     pub show_separator: bool,
+    /// Render Nerd Font icons before module titles.
+    #[serde(default = "default_true")]
+    pub icons_enabled:  bool,
     #[serde(default)]
     pub greetings:      GreetingsConfig,
     #[serde(default)]
@@ -167,6 +170,7 @@ impl Default for VaminfoConfig {
             mini_mode:     false,
             show_title:    true,
             show_separator: true,
+            icons_enabled: true,
             greetings:     GreetingsConfig::default(),
             modules:       ModuleConfig::default(),
             module_order:  vec![],

@@ -38,6 +38,48 @@ pub trait Module: Send + Sync {
     fn collect(&self, sys: &System, cfg: &VaminfoConfig) -> Option<String>;
 }
 
+/// Return a Nerd Font Material Design icon for a module title.
+///
+/// These are private-use glyphs from Nerd Fonts, not emoji. The four-point
+/// star fallback is Vamora's universal unknown-module symbol.
+pub fn module_icon(name: &str) -> &'static str {
+    match name {
+        "OS"          => "󰌽",
+        "VamoraSys"   => "󰒋",
+        "VMF Version" => "󰏓",
+        "Vamora"      => "󰙵",
+        "Host"        => "󰟀",
+        "Kernel"      => "󰒓",
+        "BIOS"        => "󰘚",
+        "Android"     => "󰀲",
+        "Device"      => "󰍹",
+        "CPU"         => "󰻠",
+        "GPU"         => "󰢮",
+        "RAM"         => "󰍛",
+        "Disk"        => "󰋊",
+        "Battery"     => "󰁹",
+        "Bluetooth"   => "󰂯",
+        "Uptime"      => "󰥔",
+        "System Age"  => "󰃰",
+        "Shell"       => "󰆍",
+        "Terminal"    => "",
+        "TTY"         => "󰆍",
+        "DE / WM"     => "󰨇",
+        "Display"     => "󰍹",
+        "Resolution"  => "󰲏",
+        "Theme"       => "󰔎",
+        "Filesystem"  => "󰙅",
+        "Sudo"        => "󰕥",
+        "Local IP"    => "󰩟",
+        "Public IP"   => "󰖟",
+        "Network"     => "󰌘",
+        "Birthday"    => "󰃩",
+        "Quote"       => "󰝗",
+        "Joke"        => "󰱨",
+        _             => "󰫢",
+    }
+}
+
 // ── Canonical key order ───────────────────────────────────────────────────────
 
 pub const MODULE_KEYS: &[&str] = &[

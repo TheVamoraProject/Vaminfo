@@ -1,7 +1,7 @@
 use crate::ascii::{ascii_width, load_ascii, truncate_to_visible, visible_len};
 use crate::config::VaminfoConfig;
 use crate::layout::{decide_layout, detect_terminal_size, LayoutMode};
-use crate::modules::{build_mini_modules, build_modules};
+use crate::modules::{build_mini_modules, build_modules, module_icon};
 use colored::{Color, Colorize};
 use sysinfo::System;
 
@@ -57,11 +57,13 @@ pub fn render_mini(cfg: &VaminfoConfig) {
         }
     }
 
-    // Determine box width
+    // Determine box width. Icons are optional, including in mini mode, so the
+    // layout never reserves space for missing Nerd Font glyphs when disabled.
     let title = user_host();
+    let icon_w = if cfg.icons_enabled { 2 } else { 0 };
     let inner_width = {
         let max_row = rows.iter()
-            .map(|(k, v)| k.len() + 3 + v.len()) // "Key : Value"
+            .map(|(k, v)| icon_w + k.len() + 3 + v.len())
             .max()
             .unwrap_or(0);
         max_row.max(title.len() + 2).max(40).min(70)
@@ -85,7 +87,7 @@ pub fn render_mini(cfg: &VaminfoConfig) {
     const KEY_W: usize = 8;
     const COLON_W: usize = 3; // " : "
     const INDENT: usize = 2;  // leading "  "
-    let max_val_w = inner_width.saturating_sub(INDENT + KEY_W + COLON_W + 1);
+    let max_val_w = inner_width.saturating_sub(INDENT + icon_w + KEY_W + COLON_W + 1);
 
     for (key, val) in &rows {
         // RAM gets a progress bar
@@ -102,16 +104,22 @@ pub fn render_mini(cfg: &VaminfoConfig) {
             base_val
         };
 
-        let row_vis = INDENT + KEY_W + COLON_W + display_val.len();
+        let row_vis = INDENT + icon_w + KEY_W + COLON_W + display_val.len();
         let pad     = inner_width.saturating_sub(row_vis);
 
+        let icon_c = if cfg.icons_enabled {
+            format!("{} ", module_icon(key)).color(kc).bold().to_string()
+        } else {
+            String::new()
+        };
         let key_c   = format!("{:KEY_W$}", key).color(kc).bold().to_string();
         let colon_c = " : ".color(kc).to_string();
         let val_c   = display_val.color(vc).to_string();
 
         println!(
-            "{}  {}{}{}{}{}",
+            "{}  {}{}{}{}{}{}",
             "│".color(ac),
+            icon_c,
             key_c,
             colon_c,
             val_c,
@@ -284,7 +292,8 @@ fn build_info_lines(
     }
 
     const KEY_W: usize = 13;
-    let indent = " ".repeat(KEY_W + 3); // 13 key + " : "
+    let icon_w = if cfg.icons_enabled { 2 } else { 0 };
+    let indent = " ".repeat(icon_w + KEY_W + 3); // icon + key + " : "
 
     let mut hit_raw = false;
     for module in modules {
@@ -299,6 +308,12 @@ fn build_info_lines(
                     lines.push(sub.to_string());
                 }
             } else {
+                let icon = if cfg.icons_enabled {
+                    format!("{} ", module_icon(module.name()))
+                        .color(parse_color(&cfg.key_color)).bold().to_string()
+                } else {
+                    String::new()
+                };
                 let key   = format!("{:KEY_W$}", module.name())
                     .color(parse_color(&cfg.key_color)).bold().to_string();
                 let colon = " : ".color(parse_color(&cfg.key_color)).to_string();
@@ -308,12 +323,12 @@ fn build_info_lines(
                     // Multi-line value: first line gets key+colon, rest get indent
                     let mut parts = value.splitn(64, '\n');
                     let first = parts.next().unwrap_or("");
-                    lines.push(format!("{}{}{}", key, colon, first.color(vc)));
+                    lines.push(format!("{}{}{}{}", icon, key, colon, first.color(vc)));
                     for cont in parts {
                         lines.push(format!("{}{}", indent, cont.color(vc)));
                     }
                 } else {
-                    lines.push(format!("{}{}{}", key, colon, value.color(vc)));
+                    lines.push(format!("{}{}{}{}", icon, key, colon, value.color(vc)));
                 }
             }
         }

@@ -18,6 +18,8 @@ A simple customizable system fetch tool made just for <b>VamoraOS</b> 💙
 - ⚡ Instant startup
 - 🧠 Auto-layout: split (desktop) or stacked (mobile) depending on terminal width
 - 🎨 Fully colorized, customizable output
+- Nerd Font module icons with a four-point Vamora fallback icon
+- Nerd Font icons can be enabled or disabled from `vaminfo config` (main menu or Display Options)
 - 🧩 Modular trait-based architecture — each info module is independent and easy to add
 - 🎭 ASCII art system with custom files + built-in Vamora logo
 - 📱 Mini mode for quick essential info
@@ -38,9 +40,9 @@ vaminfo --version, -v # Print version information
 vaminfo --help, -h    # Show help message
 ```
 ## Wizard Controls
-- Arrow keys (or `j`/`k`) to move the ▶ selector
+- Arrow keys (or `j`/`k`) to move the Nerd Font selector
 - `Enter` to select / confirm
-- `Space` to toggle a module ON/OFF (in Modules & Order)
+- `Space` or `Enter` to toggle a module (the readable `[ON ]` / `[OFF]` state works with or without Nerd Fonts)
 - `U`/`D` or `Shift+↑`/`Shift+↓` to reorder modules
 - `q` or `Esc` to exit without saving
 
@@ -57,11 +59,23 @@ chmod +x install.sh
 ```
 The installer will:
 1. Check / install the Rust toolchain
-2. Build a release binary
-3. Install to `/usr/local/bin/vaminfo`
-4. Create `~/.VamoraSys/apps/vaminfo/` directory structure
-5. Deploy bundled ASCII art
-6. Generate a default `config.vmf` if one doesn't exist
+2. Download JetBrainsMono Nerd Font v3.5.1 from GitHub into `~/.local/share/fonts`
+3. Build a release binary
+4. Install to `/usr/local/bin/vaminfo`
+5. Create `~/.VamoraSys/apps/vaminfo/` directory structure
+6. Deploy bundled ASCII art
+7. Generate a default `config.vmf` if one doesn't exist
+8. Enable Nerd Font icons only when the font setup succeeds
+
+After installation, open your terminal emulator's **Preferences** or
+**Profile** settings, enable custom fonts (or disable its system/default font
+option), and set **JetBrainsMono Nerd Font** as the default font. Restart the
+terminal if existing tabs still show missing glyphs. Use
+`VAMINFO_SKIP_FONT=1 ./install.sh` to skip the automatic font download.
+
+If the font could not be installed, the generated config keeps **Nerd Font
+icons** off so the output remains readable. You can change it later with
+`vaminfo config` → **Display Options** → **Nerd Font icons**.
 
 ## Manual Build
 

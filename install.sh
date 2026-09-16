@@ -90,6 +90,109 @@ maybe_sudo() {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  § NERD FONT SETUP
+# ══════════════════════════════════════════════════════════════════════════════
+# The binary uses Nerd Font private-use glyphs for its module icons. Install
+# the font per-user so this does not need sudo and does not alter system fonts.
+NERD_FONT_NAME="JetBrainsMono"
+NERD_FONT_DISPLAY="JetBrainsMono Nerd Font"
+NERD_FONT_VERSION="v3.5.1"
+NERD_FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONT_VERSION}/${NERD_FONT_NAME}.zip"
+NERD_FONT_AVAILABLE=false
+
+install_nerd_font() {
+    if [[ "${VAMINFO_SKIP_FONT:-0}" == "1" ]]; then
+        log_warn "Nerd Font installation skipped (VAMINFO_SKIP_FONT=1)"
+        return 0
+    fi
+
+    if $IS_TERMUX; then
+        log_warn "Termux cannot install the Android terminal font from this script."
+        log_warn "Install a Nerd Font in your terminal app, then select it there."
+        return 0
+    fi
+
+    if command -v fc-list &>/dev/null && fc-list 2>/dev/null | grep -qi "Nerd Font"; then
+        NERD_FONT_AVAILABLE=true
+        log_ok "A Nerd Font is already installed"
+        return 0
+    fi
+
+    local font_dir
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        font_dir="$HOME/Library/Fonts"
+    else
+        font_dir="$HOME/.local/share/fonts"
+    fi
+    mkdir -p "$font_dir"
+
+    if ! command -v curl &>/dev/null; then
+        log_warn "curl is unavailable — cannot download ${NERD_FONT_DISPLAY}"
+        log_warn "Install a Nerd Font manually and select it in your terminal."
+        return 0
+    fi
+
+    local archive
+    archive="$(mktemp "${TMPDIR:-/tmp}/vaminfo-nerd-font.XXXXXX")"
+    log_info "Downloading ${BOLD}${NERD_FONT_DISPLAY} ${NERD_FONT_VERSION}${RESET} from GitHub …"
+    if ! curl --fail --location --ipv4 \
+        --connect-timeout 15 --max-time 180 \
+        --retry 3 --retry-delay 2 --retry-all-errors \
+        --progress-bar "$NERD_FONT_URL" -o "$archive"; then
+        rm -f "$archive"
+        log_warn "Nerd Font download failed — continuing without changing the system"
+        log_warn "You can install ${NERD_FONT_DISPLAY} manually later."
+        return 0
+    fi
+
+    if command -v unzip &>/dev/null; then
+        if ! unzip -q -o "$archive" -d "$font_dir"; then
+            rm -f "$archive"
+            log_warn "Could not unpack ${NERD_FONT_DISPLAY}"
+            return 0
+        fi
+    elif command -v python3 &>/dev/null; then
+        if ! python3 - "$archive" "$font_dir" <<'PY'
+import sys
+import zipfile
+
+archive, destination = sys.argv[1], sys.argv[2]
+with zipfile.ZipFile(archive) as bundle:
+    for member in bundle.infolist():
+        if member.filename.lower().endswith((".ttf", ".otf")):
+            member.filename = member.filename.rsplit("/", 1)[-1]
+            bundle.extract(member, destination)
+PY
+        then
+            rm -f "$archive"
+            log_warn "Could not unpack ${NERD_FONT_DISPLAY}"
+            return 0
+        fi
+    else
+        rm -f "$archive"
+        log_warn "Neither unzip nor python3 is available"
+        log_warn "Install ${NERD_FONT_DISPLAY} manually and select it in your terminal."
+        return 0
+    fi
+    rm -f "$archive"
+
+    if command -v fc-cache &>/dev/null; then
+        fc-cache -f "$font_dir" >/dev/null 2>&1 || true
+    fi
+    NERD_FONT_AVAILABLE=true
+    log_ok "${NERD_FONT_DISPLAY} installed  →  ${BOLD}${font_dir}${RESET}"
+}
+
+show_font_instructions() {
+    echo ""
+    log_warn "Enable the custom terminal font before running ${BINARY_NAME}:"
+    log_dim "Open your terminal emulator's Preferences or Profile settings"
+    log_dim "Enable custom fonts or disable the system/default font option"
+    log_dim "Set '${NERD_FONT_DISPLAY}' as the terminal's default font"
+    log_dim "Restart the terminal if existing tabs still show missing glyphs."
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  § OS DETECTION
 # ══════════════════════════════════════════════════════════════════════════════
 detect_os() {
@@ -187,7 +290,7 @@ distro_theme() {
 # ══════════════════════════════════════════════════════════════════════════════
 generate_config() {
     local ascii_file="$1" ascii_color="$2" title_color="$3"
-    local key_color="$4" value_color="$5"
+    local key_color="$4" value_color="$5" icons_enabled="$6"
 
     cat > "$CONFIG_FILE" <<EOF
 ascii_file = "${ascii_file}"
@@ -199,6 +302,7 @@ separator = "-"
 mini_mode = false
 show_title = true
 show_separator = true
+icons_enabled = ${icons_enabled}
 module_order = [
     "os",
     "vamorasys_version",
@@ -340,7 +444,7 @@ hr "═" "$BOLD$CYAN"
 echo ""
 
 # ── Phase 1 : Rust toolchain ──────────────────────────────────────────────────
-phase "[ 1 / 4 ]  RUST TOOLCHAIN"
+phase "[ 1 / 5 ]  RUST TOOLCHAIN"
 
 if ! command -v cargo &>/dev/null; then
     log_warn "Rust not found — installing via rustup..."
@@ -361,8 +465,14 @@ log_info "Install target  →  ${BOLD}${BIN_DIR}${RESET}"
 
 divider
 
-# ── Phase 2 : Build ───────────────────────────────────────────────────────────
-phase "[ 2 / 4 ]  COMPILING"
+# ── Phase 2 : Nerd Font ──────────────────────────────────────────────────────
+phase "[ 2 / 5 ]  NERD FONT"
+install_nerd_font
+show_font_instructions
+divider
+
+# ── Phase 3 : Build ───────────────────────────────────────────────────────────
+phase "[ 3 / 5 ]  COMPILING"
 
 log_info "Running ${BOLD}cargo build --release${RESET} …"
 echo ""
@@ -376,8 +486,8 @@ log_ok "Binary ready  →  ${BOLD}${BINARY_NAME}${RESET}"
 log_dim "$(du -sh "$BINARY" | cut -f1) on disk"
 divider
 
-# ── Phase 3 : Install files ───────────────────────────────────────────────────
-phase "[ 3 / 4 ]  INSTALLING FILES"
+# ── Phase 4 : Install files ───────────────────────────────────────────────────
+phase "[ 4 / 5 ]  INSTALLING FILES"
 
 # Binary
 log_info "Copying binary to ${BOLD}${BIN_DIR}${RESET} …"
@@ -408,8 +518,8 @@ fi
 
 divider
 
-# ── Phase 4 : OS detection & config ───────────────────────────────────────────
-phase "[ 4 / 4 ]  DETECTING OS & WRITING CONFIG"
+# ── Phase 5 : OS detection & config ───────────────────────────────────────────
+phase "[ 5 / 5 ]  DETECTING OS & WRITING CONFIG"
 
 IFS='|' read -r OS_ID OS_ID_LIKE OS_PRETTY <<< "$(detect_os)"
 DISPLAY_OS="${OS_PRETTY:-$OS_ID}"
@@ -425,10 +535,33 @@ read -r AFILE ACOLOR TCOLOR KCOLOR VCOLOR <<< "$(distro_theme "$OS_ID" "$OS_ID_L
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
     log_info "Generating config …"
-    generate_config "$AFILE" "$ACOLOR" "$TCOLOR" "$KCOLOR" "$VCOLOR"
+    generate_config "$AFILE" "$ACOLOR" "$TCOLOR" "$KCOLOR" "$VCOLOR" "$NERD_FONT_AVAILABLE"
     log_ok "Config written  →  ${BOLD}${CONFIG_FILE}${RESET}"
 else
     log_info "Config already exists — skipping  ${DIM}(delete it to regenerate)${RESET}"
+    if ! grep -qE '^icons_enabled[[:space:]]*=' "$CONFIG_FILE"; then
+        updated_config="$(mktemp "${CONFIG_FILE}.XXXXXX")"
+        if awk -v enabled="$NERD_FONT_AVAILABLE" '
+            !inserted && /^\[/ {
+                print "icons_enabled = " enabled
+                print ""
+                inserted = 1
+            }
+            { print }
+            END {
+                if (!inserted) {
+                    print ""
+                    print "icons_enabled = " enabled
+                }
+            }
+        ' "$CONFIG_FILE" > "$updated_config"; then
+            mv "$updated_config" "$CONFIG_FILE"
+            log_info "Added Nerd Font icon setting  →  ${BOLD}${NERD_FONT_AVAILABLE}${RESET}"
+        else
+            rm -f "$updated_config"
+            log_warn "Could not update the existing config with Nerd Font status"
+        fi
+    fi
 fi
 
 echo ""

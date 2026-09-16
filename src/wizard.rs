@@ -1,5 +1,5 @@
 use crate::config::{art_dir, GreetingEvent, VaminfoConfig};
-use crate::modules::{effective_order, is_enabled, set_enabled, MODULE_KEYS};
+use crate::modules::{effective_order, is_enabled, module_icon, set_enabled, MODULE_KEYS};
 use crate::renderer::parse_color;
 use colored::Colorize;
 use crossterm::{
@@ -203,20 +203,26 @@ pub fn run_wizard(mut cfg: VaminfoConfig) {
 }
 
 fn main_menu(cfg: &mut VaminfoConfig) {
-    let items: Vec<String> = vec![
-        "ASCII Art".into(),
-        "Colors".into(),
-        "Modules & Order".into(),
-        "Display Options".into(),
-        "Greetings & Events".into(),
-        "Preview".into(),
-        "Save & Exit".into(),
-        "Exit without Saving".into(),
-    ];
     let mut sel = 0;
 
     loop {
         let hl = parse_color(&cfg.ascii_color);
+        let icon_state = if cfg.icons_enabled {
+            "ON".green().bold().to_string()
+        } else {
+            "OFF".red().to_string()
+        };
+        let items: Vec<String> = vec![
+            "ASCII Art".into(),
+            "Colors".into(),
+            "Modules & Order".into(),
+            "Display Options".into(),
+            format!("Nerd Font icons  [ {} ]", icon_state),
+            "Greetings & Events".into(),
+            "Preview".into(),
+            "Save & Exit".into(),
+            "Exit without Saving".into(),
+        ];
         let choice = arrow_select(
             "Vaminfo Config Wizard",
             &items,
@@ -233,9 +239,10 @@ fn main_menu(cfg: &mut VaminfoConfig) {
                     1 => menu_colors(cfg),
                     2 => menu_modules(cfg),
                     3 => menu_display(cfg),
-                    4 => menu_greetings(cfg),
-                    5 => run_preview(cfg),
-                    6 => { cfg.save(); return; }
+                    4 => cfg.icons_enabled = !cfg.icons_enabled,
+                    5 => menu_greetings(cfg),
+                    6 => run_preview(cfg),
+                    7 => { cfg.save(); return; }
                     _ => return,
                 }
             }
@@ -425,15 +432,17 @@ fn menu_display(cfg: &mut VaminfoConfig) {
             format!("Show title (user@host)   [ {} ]", on(cfg.show_title)),
             format!("Show separator line      [ {} ]", on(cfg.show_separator)),
             format!("Mini mode                [ {} ]", on(cfg.mini_mode)),
+            format!("Nerd Font icons          [ {} ]", on(cfg.icons_enabled)),
             format!("Separator char           [ {} ]", cfg.separator.bright_yellow()),
             "Back".into(),
         ];
         match arrow_select("Display Options", &items, 0, hl, "↑↓  Navigate     Enter  Toggle/Set     Q  Back") {
-            None | Some(4) => return,
+            None | Some(5) => return,
             Some(0) => cfg.show_title    = !cfg.show_title,
             Some(1) => cfg.show_separator = !cfg.show_separator,
             Some(2) => cfg.mini_mode     = !cfg.mini_mode,
-            Some(3) => {
+            Some(3) => cfg.icons_enabled = !cfg.icons_enabled,
+            Some(4) => {
                 let s = prompt("Separator character(s): ");
                 if !s.is_empty() { cfg.separator = s; }
             }
@@ -536,26 +545,46 @@ fn menu_modules(cfg: &mut VaminfoConfig) {
 
         let mut lines = header("Modules & Order", hl);
         lines.push(
-            "  ↑↓/jk Navigate   Space Toggle   U/D or Shift+↑↓ Reorder   Q Save & Back"
+            "  Up/Down or j/k Navigate   Space/Enter Toggle   U/D Reorder   Q Save & Back"
                 .dimmed().to_string()
         );
         lines.push(String::new());
 
         for (i, row) in rows.iter().enumerate().skip(top).take(visible) {
+            let state = if row.enabled { "[ON ]" } else { "[OFF]" };
+            let state_icon = if cfg.icons_enabled {
+                if row.enabled { "󰄲 " } else { "󰄱 " }
+            } else {
+                ""
+            };
+            let row_icon = if cfg.icons_enabled {
+                format!("{} ", module_icon(&row.key))
+            } else {
+                String::new()
+            };
             if i == sel {
                 // Selected: entire row in hl color
-                let state = if row.enabled { "[ON ]" } else { "[OFF]" };
                 lines.push(
-                    format!("  ▶  {} {}", state, row.label)
+                    format!(
+                        "  {}  {}{} {}{}",
+                        if cfg.icons_enabled { "󰅂" } else { ">" },
+                        state_icon,
+                        state,
+                        row_icon,
+                        row.label
+                    )
                         .color(hl).bold().to_string()
                 );
             } else {
                 let state = if row.enabled {
-                    "[ON ]".green().bold().to_string()
+                    state.green().bold().to_string()
                 } else {
-                    "[OFF]".red().dimmed().to_string()
+                    state.red().dimmed().to_string()
                 };
-                lines.push(format!("     {} {}", state, row.label));
+                lines.push(format!(
+                    "     {}{} {}{}",
+                    state_icon, state, row_icon, row.label
+                ));
             }
         }
 
