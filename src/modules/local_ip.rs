@@ -1,7 +1,8 @@
 use super::Module;
 use crate::config::VaminfoConfig;
 use sysinfo::System;
-use std::net::{TcpStream, UdpSocket};
+use std::net::UdpSocket;
+use std::process::Command;
 
 pub struct LocalIpModule;
 
@@ -20,12 +21,15 @@ impl Module for LocalIpModule {
                 }
             }
         }
-        // Fallback: try TCP
-        if let Ok(stream) = TcpStream::connect("8.8.8.8:80") {
-            if let Ok(addr) = stream.local_addr() {
-                let ip = addr.ip().to_string();
-                if ip != "0.0.0.0" {
-                    return Some(ip);
+        // Offline fallback: hostname -I reads local interface state and does
+        // not open a connection or wait for the network.
+        if let Ok(out) = Command::new("hostname").arg("-I").output() {
+            if out.status.success() {
+                if let Some(ip) = String::from_utf8_lossy(&out.stdout)
+                    .split_whitespace()
+                    .find(|ip| *ip != "127.0.0.1" && !ip.starts_with("169.254."))
+                {
+                    return Some(ip.to_string());
                 }
             }
         }

@@ -228,32 +228,36 @@ distro_theme() {
         # ── Debian family ──────────────────────────────────────────────────
         debian)                 echo "debian.vtxt red red red white" ;;
         ubuntu)                 echo "ubuntu.vtxt yellow yellow yellow white" ;;
-        linuxmint|mint)         echo "mint.vtxt green green green white" ;;
-        pop|pop_os)             echo "pop.vtxt cyan cyan cyan white" ;;
+        kubuntu)                echo "kubuntu.vtxt blue blue blue white" ;;
+        lubuntu)                echo "lubuntu.vtxt cyan cyan cyan white" ;;
+        linuxmint|mint)         echo "linuxmint.vtxt green green green white" ;;
+        pop|pop_os)             echo "popos.vtxt cyan cyan cyan white" ;;
         elementary)             echo "elementary.vtxt blue blue blue white" ;;
         kali)                   echo "kali.vtxt blue blue blue white" ;;
-        raspbian)               echo "raspbian.vtxt red red red white" ;;
-        mxlinux|mx)             echo "mx.vtxt blue blue blue white" ;;
+        raspbian)               echo "debian.vtxt red red red white" ;;
+        mxlinux|mx)             echo "debian.vtxt blue blue blue white" ;;
         zorin)                  echo "zorin.vtxt blue blue blue white" ;;
         # ── Arch family ────────────────────────────────────────────────────
         arch)                   echo "arch.vtxt cyan cyan cyan white" ;;
         manjaro)                echo "manjaro.vtxt green green green white" ;;
         endeavouros|endeavour)  echo "endeavouros.vtxt magenta magenta magenta white" ;;
         garuda)                 echo "garuda.vtxt magenta magenta magenta white" ;;
-        artix)                  echo "artix.vtxt cyan cyan cyan white" ;;
-        blackarch)              echo "blackarch.vtxt red red red white" ;;
+        artix|blackarch)        echo "arch.vtxt cyan cyan cyan white" ;;
         # ── Red Hat family ─────────────────────────────────────────────────
         fedora)                 echo "fedora.vtxt blue blue blue white" ;;
-        rhel)                   echo "rhel.vtxt red red red white" ;;
+        rhel)                   echo "fedora.vtxt red red red white" ;;
         centos)                 echo "centos.vtxt yellow yellow yellow white" ;;
-        almalinux|alma)         echo "alma.vtxt yellow yellow yellow white" ;;
-        rocky)                  echo "rocky.vtxt green green green white" ;;
+        almalinux|alma)         echo "fedora.vtxt yellow yellow yellow white" ;;
+        rocky)                  echo "fedora.vtxt green green green white" ;;
         # ── SUSE ───────────────────────────────────────────────────────────
         opensuse*|suse)         echo "opensuse.vtxt green green green white" ;;
         # ── Other Linux ────────────────────────────────────────────────────
         gentoo)                 echo "gentoo.vtxt magenta magenta magenta white" ;;
         void)                   echo "void.vtxt green green green white" ;;
         nixos)                  echo "nixos.vtxt blue blue blue white" ;;
+        cachyos)                echo "cachyos.vtxt cyan cyan cyan white" ;;
+        pika|pikaos)            echo "pika.vtxt magenta magenta magenta white" ;;
+        truenas*|trueNAS*)      echo "truenas-scale.vtxt cyan cyan cyan white" ;;
         alpine)                 echo "alpine.vtxt blue blue blue white" ;;
         slackware)              echo "slackware.vtxt blue blue blue white" ;;
         # ── VamoraOS ───────────────────────────────────────────────────────
@@ -263,8 +267,8 @@ distro_theme() {
         # ── BSD / macOS ────────────────────────────────────────────────────
         darwin|macos|macosx)    echo "macos.vtxt white white cyan white" ;;
         freebsd)                echo "freebsd.vtxt red red red white" ;;
-        netbsd)                 echo "netbsd.vtxt yellow yellow yellow white" ;;
-        openbsd)                echo "openbsd.vtxt yellow yellow yellow white" ;;
+        netbsd)                 echo "freebsd.vtxt yellow yellow yellow white" ;;
+        openbsd)                echo "freebsd.vtxt yellow yellow yellow white" ;;
         # ── Fallback via ID_LIKE chain ──────────────────────────────────────
         *)
             if   [[ "$id_like" == *"debian"* || "$id_like" == *"ubuntu"* ]]; then
@@ -315,7 +319,11 @@ module_order = [
     "android_device",
     "cpu",
     "gpu",
+    "packages",
     "ram",
+    "swap",
+    "load_average",
+    "temperature",
     "disk",
     "battery",
     "bluetooth",
@@ -352,7 +360,11 @@ kernel                  = true
 bios                    = true
 cpu                     = true
 gpu                     = true
+packages                = true
 ram                     = true
+swap                    = true
+load_average            = true
+temperature             = true
 disk                    = true
 uptime                  = true
 shell                   = true

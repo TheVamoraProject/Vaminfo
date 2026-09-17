@@ -20,6 +20,7 @@ A simple customizable system fetch tool made just for <b>VamoraOS</b> 💙
 - 🎨 Fully colorized, customizable output
 - Nerd Font module icons with a four-point Vamora fallback icon
 - Nerd Font icons can be enabled or disabled from `vaminfo config` (main menu or Display Options)
+- 30 bundled distro and platform ASCII logos, with custom art support
 - 🧩 Modular trait-based architecture — each info module is independent and easy to add
 - 🎭 ASCII art system with custom files + built-in Vamora logo
 - 📱 Mini mode for quick essential info
@@ -113,7 +114,11 @@ No manual override — fully automatic and adaptive.
 |-----------------|**Hardware**    |
 | cpu             | CPU model, cores, frequency, load %                    |
 | gpu             | GPU model (Linux /sys/class/drm)                       |
+| packages        | Installed package count for dpkg, pacman, apk, xbps, or rpm |
 | ram             | Used / Total memory with percentage                    |
+| swap            | Swap usage and percentage, or disabled                 |
+| load average    | 1, 5, and 15-minute system load                        |
+| temperature     | Highest available Linux thermal sensor                 |
 | disk            | Disk usage for `/` and `/home`                          |
 | battery         | Battery % and charge status                             |
 | bluetooth       | Bluetooth status                                        |

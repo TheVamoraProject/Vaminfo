@@ -1,5 +1,6 @@
 use super::Module;
 use crate::config::VaminfoConfig;
+use std::process::Command;
 use sysinfo::System;
 
 pub struct GpuModule;
@@ -21,23 +22,41 @@ impl Module for GpuModule {
                             return Some(name);
                         }
                     }
-                    // Try vendor + device via modalias
-                    let vendor_path = entry.path().join("device/vendor");
-                    let device_path = entry.path().join("device/device");
-                    if let (Ok(v), Ok(d)) = (
-                        fs::read_to_string(&vendor_path),
-                        fs::read_to_string(&device_path),
-                    ) {
-                        let v = v.trim().to_string();
-                        let d = d.trim().to_string();
-                        if !v.is_empty() && !d.is_empty() {
-                            return Some(format!("GPU [{} {}]", v, d));
+                    // If only sysfs IDs are available, report the driver
+                    // rather than leaking an unhelpful raw PCI code.
+                    let driver_path = entry.path().join("device/driver");
+                    let driver = fs::read_link(&driver_path)
+                        .ok()
+                        .and_then(|path| path.file_name().map(|name| name.to_string_lossy().to_string()));
+                    if let Some(driver) = driver.filter(|value| !value.is_empty()) {
+                        return Some(format!("{} graphics", driver));
+                    }
+                }
+            }
+        }
+
+        // lspci provides a real model name when the DRM sysfs entry only
+        // exposes numeric vendor/device IDs.
+        if let Ok(out) = Command::new("lspci").arg("-nn").output() {
+            if out.status.success() {
+                for line in String::from_utf8_lossy(&out.stdout).lines() {
+                    let lower = line.to_ascii_lowercase();
+                    if !(lower.contains("vga compatible controller")
+                        || lower.contains("3d controller")
+                        || lower.contains("display controller"))
+                    {
+                        continue;
+                    }
+                    if let Some((_, model)) = line.split_once(": ") {
+                        let model = model.split(" [").next().unwrap_or(model).trim();
+                        if !model.is_empty() {
+                            return Some(model.to_string());
                         }
                     }
                 }
             }
         }
-        // Fallback: not detected
+
         None
     }
 }

@@ -17,18 +17,22 @@ pub mod local_ip;
 pub mod media;
 pub mod network;
 pub mod os_info;
+pub mod packages;
 pub mod public_ip;
 pub mod quotes;
 pub mod ram;
 pub mod resolution;
 pub mod shell;
 pub mod sudo;
+pub mod swap;
 pub mod sys_age;
+pub mod temperature;
 pub mod terminal;
 pub mod theme;
 pub mod tty_type;
 pub mod uptime;
 pub mod vamora_os;
+pub mod load_average;
 
 use crate::config::VaminfoConfig;
 use sysinfo::System;
@@ -55,7 +59,11 @@ pub fn module_icon(name: &str) -> &'static str {
         "Device"      => "󰍹",
         "CPU"         => "󰻠",
         "GPU"         => "󰢮",
+        "Packages"    => "󰏗",
         "RAM"         => "󰍛",
+        "Swap"        => "󰓡",
+        "Load"        => "󰘚",
+        "Temperature" => "󰔏",
         "Disk"        => "󰋊",
         "Battery"     => "󰁹",
         "Bluetooth"   => "󰂯",
@@ -94,7 +102,11 @@ pub const MODULE_KEYS: &[&str] = &[
     "android_device",
     "cpu",
     "gpu",
+    "packages",
     "ram",
+    "swap",
+    "load_average",
+    "temperature",
     "disk",
     "battery",
     "bluetooth",
@@ -153,7 +165,11 @@ pub fn is_enabled(cfg: &VaminfoConfig, key: &str) -> bool {
         "android_device"          => cfg.modules.android_device,
         "cpu"                     => cfg.modules.cpu,
         "gpu"                     => cfg.modules.gpu,
+        "packages"                => cfg.modules.packages,
         "ram"                     => cfg.modules.ram,
+        "swap"                    => cfg.modules.swap,
+        "load_average"            => cfg.modules.load_average,
+        "temperature"             => cfg.modules.temperature,
         "disk"                    => cfg.modules.disk,
         "battery"                 => cfg.modules.battery,
         "bluetooth"               => cfg.modules.bluetooth,
@@ -193,7 +209,11 @@ pub fn set_enabled(cfg: &mut VaminfoConfig, key: &str, val: bool) {
         "android_device"          => cfg.modules.android_device = val,
         "cpu"                     => cfg.modules.cpu = val,
         "gpu"                     => cfg.modules.gpu = val,
+        "packages"                => cfg.modules.packages = val,
         "ram"                     => cfg.modules.ram = val,
+        "swap"                    => cfg.modules.swap = val,
+        "load_average"            => cfg.modules.load_average = val,
+        "temperature"             => cfg.modules.temperature = val,
         "disk"                    => cfg.modules.disk = val,
         "battery"                 => cfg.modules.battery = val,
         "bluetooth"               => cfg.modules.bluetooth = val,
@@ -233,7 +253,11 @@ fn make_module(key: &str) -> Option<Box<dyn Module>> {
         "android_device"          => Some(Box::new(android::AndroidDeviceModule)),
         "cpu"                     => Some(Box::new(cpu::CpuModule)),
         "gpu"                     => Some(Box::new(gpu::GpuModule)),
+        "packages"                => Some(Box::new(packages::PackagesModule)),
         "ram"                     => Some(Box::new(ram::RamModule)),
+        "swap"                    => Some(Box::new(swap::SwapModule)),
+        "load_average"            => Some(Box::new(load_average::LoadAverageModule)),
+        "temperature"             => Some(Box::new(temperature::TemperatureModule)),
         "disk"                    => Some(Box::new(disk::DiskModule)),
         "battery"                 => Some(Box::new(battery::BatteryModule)),
         "bluetooth"               => Some(Box::new(bluetooth::BluetoothModule)),
